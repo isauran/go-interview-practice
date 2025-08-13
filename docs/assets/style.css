@@ -60,6 +60,29 @@ body {
     padding-top: 80px; /* Account for fixed navbar */
 }
 
+/* Compact hero variant for interview page to keep content above the fold */
+.hero-compact .hero-title {
+    font-size: 2.4rem;
+}
+
+.hero-compact .lead {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.hero-compact .code-window {
+    transform: none;
+}
+
+.hero-compact .feature-highlights .highlight-item {
+    margin-bottom: 0.25rem;
+}
+
+/* Ensure interview hero fits viewport height minus navbar */
+.hero-compact .hero-row {
+    min-height: calc(100vh - 80px);
+}
+
 .hero-gradient::before {
     content: '';
     position: absolute;
@@ -649,6 +672,77 @@ body {
 .gorm-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 .fiber-gradient { background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); }
 
+/* Interview Simulation: Feature Showcase */
+.feature-showcase {
+    padding: 1rem 0;
+}
+
+.feature-content .feature-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.feature-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.feature-details .detail-item {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Interview Simulation: Provider Cards */
+.provider-card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    padding: 1.25rem;
+    text-align: center;
+    height: 100%;
+    transition: var(--transition);
+}
+
+.provider-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.provider-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.6rem;
+    margin: 0 auto 0.75rem;
+}
+
+.gemini-gradient { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.openai-gradient { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
+.claude-gradient { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+
+.provider-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
 /* Coming Soon Styles */
 .coming-soon-badge {
     display: inline-flex;
@@ -1032,6 +1126,15 @@ body {
     .framework-actions .btn-framework-primary,
     .framework-actions .btn-framework-secondary {
         width: 100%;
+    }
+
+    /* Interview hero mobile adjustments */
+    .hero-compact .hero-title {
+        font-size: 1.9rem;
+    }
+    .hero-compact .lead {
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
     }
 }
 

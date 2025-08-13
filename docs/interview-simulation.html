@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Simulation - Go Interview Practice</title>
+    <meta name="description" content="Experience realistic coding interviews with AI-powered feedback, dynamic questions, and progressive hints. Master Go programming through simulated interview scenarios.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="bi bi-code-square me-2"></i>Go Interview Practice
+            </a>
+            <div class="d-flex gap-2">
+                <a href="index.html" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+                <a href="https://github.com/RezaSi/go-interview-practice" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-github me-1"></i>GitHub
+                </a>
+                <a href="https://github.com/sponsors/RezaSi" class="btn btn-sponsor btn-sm">
+                    <i class="bi bi-heart-fill me-1"></i>Sponsor
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient hero-compact">
+        <div class="container">
+            <div class="row align-items-center hero-row py-4">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <h1 class="hero-title fw-bold mb-4">
+                            <span class="text-gradient">AI Interview Simulation</span><br>
+                            Practice Like It's Real
+                        </h1>
+                        <p class="lead mb-4 text-muted">
+                            Transform your coding practice into realistic interview scenarios with AI-powered feedback, 
+                            dynamic questioning, and progressive hints. Experience the pressure and learn to excel.
+                        </p>
+                        
+                        <!-- Feature highlights -->
+                        <div class="feature-highlights mb-4">
+                            <div class="highlight-item mb-2">
+                                <i class="bi bi-robot text-primary me-2"></i>
+                                <span><strong>AI-Powered Reviews:</strong> Real-time code analysis and feedback</span>
+                            </div>
+                            <div class="highlight-item mb-2">
+                                <i class="bi bi-chat-dots text-success me-2"></i>
+                                <span><strong>Dynamic Questions:</strong> Follow-up questions based on your solution</span>
+                            </div>
+                            <div class="highlight-item mb-2">
+                                <i class="bi bi-stopwatch text-warning me-2"></i>
+                                <span><strong>Timed Sessions:</strong> Practice under realistic time pressure</span>
+                            </div>
+                            <div class="highlight-item mb-2">
+                                <i class="bi bi-lightbulb text-info me-2"></i>
+                                <span><strong>Progressive Hints:</strong> 4-level hint system when you're stuck</span>
+                            </div>
+                        </div>
+
+                        <!-- CTA Buttons -->
+                        <div class="cta-buttons mt-2">
+                            <a href="https://github.com/RezaSi/go-interview-practice#quick-start" 
+                               class="btn btn-primary btn-lg me-3">
+                                <i class="bi bi-play-circle me-2"></i>Start Interview Practice
+                            </a>
+                            <a href="#features" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-eye me-2"></i>See Features
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="hero-visual">
+                        <div class="code-window">
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                            <div class="code-content">
+                                <pre><code class="go-code"><span class="go-comment">// AI Interview Simulation Active</span>
+<span class="go-keyword">func</span> <span class="go-function">findEmployeeByID</span>(employees []Employee, id <span class="go-keyword">int</span>) *Employee {
+    <span class="go-comment">// Your solution here...</span>
+    <span class="go-keyword">for</span> i := <span class="go-keyword">range</span> employees {
+        <span class="go-keyword">if</span> employees[i].ID == id {
+            <span class="go-keyword">return</span> &employees[i]
+        }
+    }
+    <span class="go-keyword">return</span> <span class="go-keyword">nil</span>
+}
+
+<span class="go-comment">// AI Feedback: Consider time complexity optimization...</span>
+<span class="go-comment">// Interviewer asks: "How would you improve this for 10k employees?"</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-5 fw-bold mb-3">Interview Simulation Features</h2>
+                    <p class="lead text-muted">Experience every aspect of a real technical interview</p>
+                </div>
+            </div>
+            
+            <!-- Feature 1: AI Code Review -->
+            <div class="feature-showcase mb-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 order-2 order-lg-1">
+                        <div class="feature-content">
+                            <div class="feature-badge">
+                                <i class="bi bi-robot me-2"></i>AI-Powered
+                            </div>
+                            <h3 class="fw-bold mb-3">Real-Time Code Review</h3>
+                            <p class="text-muted mb-4">
+                                Get instant, detailed feedback on your code quality, complexity analysis, 
+                                and improvement suggestions from AI. Just like having a senior engineer review your work.
+                            </p>
+                            <div class="feature-details">
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Code quality analysis and scoring</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Time & space complexity evaluation</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Go best practices and idiom suggestions</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Performance optimization recommendations</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 order-1 order-lg-2">
+                        <div class="feature-image">
+                            <img src="../images/interview-code-review.png" 
+                                 alt="AI Code Review Interface" 
+                                 class="img-fluid rounded-3 shadow-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2: Dynamic Interview Questions -->
+            <div class="feature-showcase mb-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="feature-image">
+                            <img src="../images/interview-questions.png" 
+                                 alt="Dynamic Interview Questions" 
+                                 class="img-fluid rounded-3 shadow-lg">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="feature-content">
+                            <div class="feature-badge">
+                                <i class="bi bi-chat-dots me-2"></i>Interactive
+                            </div>
+                            <h3 class="fw-bold mb-3">Dynamic Interview Questions</h3>
+                            <p class="text-muted mb-4">
+                                Experience realistic follow-up questions that adapt to your solution approach. 
+                                The AI interviewer probes deeper understanding and explores edge cases.
+                            </p>
+                            <div class="feature-details">
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Questions tailored to your specific solution</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Edge case exploration and optimization queries</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Go-specific concept probing</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Trade-off and design decision discussions</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3: Timed Interview Sessions -->
+            <div class="feature-showcase mb-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 order-2 order-lg-1">
+                        <div class="feature-content">
+                            <div class="feature-badge">
+                                <i class="bi bi-stopwatch me-2"></i>Realistic
+                            </div>
+                            <h3 class="fw-bold mb-3">Timed Interview Sessions</h3>
+                            <p class="text-muted mb-4">
+                                Practice under real interview pressure with customizable time limits. 
+                                Select multiple challenges and race against the clock like in actual interviews.
+                            </p>
+                            <div class="feature-details">
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Customizable session duration (5-240 minutes)</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Multi-challenge interview scenarios</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Progress tracking and session history</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Performance scoring and completion rates</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 order-1 order-lg-2">
+                        <div class="feature-image">
+                            <img src="../images/challenge.png" 
+                                 alt="Timed Interview Session" 
+                                 class="img-fluid rounded-3 shadow-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 4: Progressive Hint System -->
+            <div class="feature-showcase mb-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="feature-image">
+                            <div class="hint-levels-demo bg-light p-4 rounded-3">
+                                <h6 class="fw-bold mb-3">Progressive Hint System</h6>
+                                <div class="hint-level mb-2">
+                                    <span class="badge bg-warning">Level 1</span>
+                                    <span class="small">Subtle nudge in the right direction</span>
+                                </div>
+                                <div class="hint-level mb-2">
+                                    <span class="badge bg-warning">Level 2</span>
+                                    <span class="small">More direct hint about the approach</span>
+                                </div>
+                                <div class="hint-level mb-2">
+                                    <span class="badge bg-warning">Level 3</span>
+                                    <span class="small">Specific implementation suggestion</span>
+                                </div>
+                                <div class="hint-level">
+                                    <span class="badge bg-warning">Level 4</span>
+                                    <span class="small">Detailed explanation with code example</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="feature-content">
+                            <div class="feature-badge">
+                                <i class="bi bi-lightbulb me-2"></i>Adaptive
+                            </div>
+                            <h3 class="fw-bold mb-3">Progressive Hint System</h3>
+                            <p class="text-muted mb-4">
+                                When you're stuck, get increasingly specific help without giving away the solution. 
+                                Learn to solve problems step by step, just like with a helpful interviewer.
+                            </p>
+                            <div class="feature-details">
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>4-level progressive hint system</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Context-aware suggestions</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Educational approach - no direct answers</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <span>Penalty tracking for scoring</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Providers Section -->
+    <section class="ai-providers py-5 bg-light">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-6 fw-bold mb-3">Powered by Leading AI Models</h2>
+                    <p class="lead text-muted">Choose your preferred AI provider for the best interview experience</p>
+                </div>
+            </div>
+            
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="provider-card">
+                        <div class="provider-icon gemini-gradient">
+                            <i class="bi bi-gem"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Google Gemini</h5>
+                        <p class="text-muted small mb-3">Recommended for best Go analysis</p>
+                        <div class="provider-features">
+                            <span class="feature-tag">Free tier available</span>
+                            <span class="feature-tag">Fast responses</span>
+                            <span class="feature-tag">Code-optimized</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="provider-card">
+                        <div class="provider-icon openai-gradient">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">OpenAI GPT</h5>
+                        <p class="text-muted small mb-3">GPT-4 for detailed analysis</p>
+                        <div class="provider-features">
+                            <span class="feature-tag">Detailed feedback</span>
+                            <span class="feature-tag">Rich explanations</span>
+                            <span class="feature-tag">Structured output</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="provider-card">
+                        <div class="provider-icon claude-gradient">
+                            <i class="bi bi-brain"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Anthropic Claude</h5>
+                        <p class="text-muted small mb-3">Claude for nuanced feedback</p>
+                        <div class="provider-features">
+                            <span class="feature-tag">Thoughtful analysis</span>
+                            <span class="feature-tag">Safety-focused</span>
+                            <span class="feature-tag">Context-aware</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Get your free API key and start practicing with AI-powered interviews in minutes
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started -->
+    <section class="getting-started py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-6 fw-bold mb-3">Start Your AI Interview Practice</h2>
+                    <p class="lead text-muted">Get up and running in 3 simple steps</p>
+                </div>
+            </div>
+            
+            <div class="steps-timeline">
+                <div class="step-item">
+                    <div class="step-connector"></div>
+                    <div class="step-circle">
+                        <span class="fw-bold">1</span>
+                    </div>
+                    <div class="step-content">
+                        <h5 class="fw-bold">Fork & Clone</h5>
+                        <p class="text-muted">Fork the repository and clone to your machine or use GitHub Codespaces</p>
+                        <code class="small">git clone https://github.com/yourusername/go-interview-practice.git</code>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-connector"></div>
+                    <div class="step-circle">
+                        <span class="fw-bold">2</span>
+                    </div>
+                    <div class="step-content">
+                        <h5 class="fw-bold">Setup AI (Optional)</h5>
+                        <p class="text-muted">Add your AI API key for enhanced interview simulation</p>
+                        <code class="small">echo "GEMINI_API_KEY=your_key_here" >> web-ui/.env</code>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="fw-bold">3</span>
+                    </div>
+                    <div class="step-content">
+                        <h5 class="fw-bold">Start Practicing</h5>
+                        <p class="text-muted">Launch the web UI and begin your interview simulation</p>
+                        <code class="small">cd web-ui && go run main.go</code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="https://github.com/RezaSi/go-interview-practice#quick-start" 
+                   class="btn btn-cta-large pulse">
+                    <i class="bi bi-rocket me-2"></i>Begin Interview Practice
+                </a>
+                <p class="small text-muted mt-3">
+                    <i class="bi bi-shield-check me-1"></i>Free • Open Source • No Account Required
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-4 bg-dark text-light">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 Go Interview Practice. Open source and free forever.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="social-links">
+                        <a href="https://github.com/RezaSi/go-interview-practice" class="text-light me-3">
+                            <i class="bi bi-github"></i> GitHub
+                        </a>
+                        <a href="https://github.com/sponsors/RezaSi" class="text-light">
+                            <i class="bi bi-heart-fill"></i> Sponsor
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/script.js"></script>
+</body>
+</html>
