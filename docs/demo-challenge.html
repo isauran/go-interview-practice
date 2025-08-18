@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenge Demo - Go Interview Practice</title>
+    <meta name="description" content="Try a sample Go programming challenge and experience our interactive coding environment.">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+
+    
+    <!-- Syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+    
+
+    
+    <style>
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-size: 1.5rem;
+        }
+
+        .navbar .btn {
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        /* CSS Custom Property for navbar height */
+        :root {
+            --navbar-height: 70px;
+        }
+
+        /* Body padding for fixed navbar */
+        body {
+            padding-top: var(--navbar-height);
+        }
+
+        /* Navbar height consistency */
+        .navbar {
+            min-height: var(--navbar-height);
+        }
+
+        /* Demo Header */
+        .demo-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .demo-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Challenge Card Styles from web-ui */
+        .challenge-card {
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, 0.125);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Difficulty badges */
+        .badge-beginner {
+            background-color: #28a745 !important;
+        }
+
+        .badge-intermediate {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+
+        .badge-advanced {
+            background-color: #dc3545 !important;
+        }
+
+        /* Editor styling */
+        .editor-container {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .editor-wrapper {
+            position: relative;
+        }
+
+        .editor-toolbar {
+            transition: all 0.2s ease;
+        }
+
+        .editor-toolbar:hover {
+            background: rgba(255,255,255,1) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Markdown content styling */
+        .markdown-content {
+            line-height: 1.6;
+            overflow-wrap: break-word;
+        }
+
+        .markdown-content h1 {
+            font-size: 1.8rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #eaecef;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.5rem;
+            margin-top: 1.2rem;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #eaecef;
+        }
+
+        .markdown-content h3 {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .markdown-content pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f6f8fa;
+            border-radius: 3px;
+            margin-bottom: 16px;
+        }
+
+        .markdown-content code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            background-color: rgba(27, 31, 35, 0.05);
+            border-radius: 3px;
+        }
+
+        .markdown-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        /* Sponsor button */
+        .btn-sponsor {
+            background: linear-gradient(135deg, #ea4aaa 0%, #ff6b9d 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 2px 4px rgba(234, 74, 170, 0.3) !important;
+            text-decoration: none !important;
+        }
+
+        .btn-sponsor:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(234, 74, 170, 0.4) !important;
+            color: white !important;
+            text-decoration: none !important;
+        }
+
+        /* Demo notice */
+        .demo-notice {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(250, 177, 160, 0.3);
+        }
+
+        .playground-notice {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        /* Animation for demo */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Hints styling */
+        .hint-item {
+            border-left: 4px solid #ffc107;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Hints animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hints tab icon styling */
+        #hints-tab .bi-lightbulb {
+            color: #ffc107;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            :root {
+                --navbar-height: 60px; /* Smaller navbar on mobile */
+            }
+            
+            .editor-container {
+                height: 300px;
+            }
+            
+            .demo-header {
+                padding: 1.5rem 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            :root {
+                --navbar-height: 56px; /* Even smaller on very small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="bi bi-code-square me-2"></i>Go Interview Practice
+            </a>
+            <div class="d-flex gap-2">
+                <a href="https://github.com/RezaSi/go-interview-practice" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-github me-1"></i>GitHub
+                </a>
+                <a href="https://github.com/sponsors/RezaSi" class="btn btn-sponsor btn-sm">
+                    <i class="bi bi-heart-fill me-1"></i>Sponsor
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Demo Header -->
+    <section class="demo-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="demo-badge d-inline-block mb-3">
+                        <i class="bi bi-play-circle me-2"></i>Interactive Demo
+                    </div>
+                    <h1 class="fw-bold mb-3">Try a Challenge Right Now!</h1>
+                    <p class="lead mb-0">
+                        Experience our interactive coding environment with this simple Go challenge. 
+                        See how our platform helps you learn and practice Go programming.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="text-white-50">
+                        <div class="fw-bold">Challenge 1</div>
+                        <div class="small">Sum of Two Numbers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Demo Notice -->
+        <div class="alert demo-notice fade-in" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-info-circle-fill me-3" style="font-size: 1.5rem;"></i>
+                <div>
+                    <h5 class="alert-heading mb-1">🚀 This is a Demo Challenge</h5>
+                    <p class="mb-0">
+                        This is a simplified version of our actual challenge interface. 
+                        <strong>Fork the repository</strong> to access all 30+ challenges with full testing, submissions, and leaderboards!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                        <li class="breadcrumb-item active">Demo Challenge</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-5">
+                <div class="card mb-4 fade-in">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Challenge 1: Sum of Two Numbers</h5>
+                        <span class="badge bg-primary badge-beginner">Beginner</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="markdown-content" id="challenge-description">
+                            <h2>Problem Statement</h2>
+                            <p>Write a function <code>Sum</code> that takes two integers and returns their sum.</p>
+                            
+                            <h3>Function Signature</h3>
+                            <pre><code class="language-go">func Sum(a int, b int) int</code></pre>
+                            
+                            <h3>Sample Input and Output</h3>
+                            
+                            <h4>Sample Input 1</h4>
+                            <pre><code>2, 3</code></pre>
+                            
+                            <h4>Sample Output 1</h4>
+                            <pre><code>5</code></pre>
+                            
+                            <h4>Sample Input 2</h4>
+                            <pre><code>-5, 10</code></pre>
+                            
+                            <h4>Sample Output 2</h4>
+                            <pre><code>5</code></pre>
+                            
+                            <h3>Constraints</h3>
+                            <ul>
+                                <li><code>-10^9 &lt;= a, b &lt;= 10^9</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="editorTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="solution-tab" data-bs-toggle="tab" href="#solution" role="tab">Solution</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tests-tab" data-bs-toggle="tab" href="#tests" role="tab">Tests</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="results-tab" data-bs-toggle="tab" href="#results" role="tab">Results</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="hints-tab" data-bs-toggle="tab" href="#hints" role="tab">
+                                    <i class="bi bi-lightbulb me-1"></i>Hints
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="learning-tab" data-bs-toggle="tab" href="#learning" role="tab">Learning</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="solution" role="tabpanel">
+                                <div class="editor-wrapper position-relative">
+                                    <!-- Editor Toolbar -->
+                                    <div class="editor-toolbar position-absolute top-0 end-0 p-2 d-flex align-items-center gap-2" style="z-index: 10; background: rgba(255,255,255,0.95); border-radius: 0 0 0 8px; border-left: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6;">
+                                        <small class="text-muted">
+                                            <i class="bi bi-info-circle me-1"></i>Demo Mode
+                                        </small>
+                                    </div>
+                                    <div id="editor" class="editor-container"></div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tests" role="tabpanel">
+                                <div id="test-editor" class="editor-container"></div>
+                            </div>
+                            <div class="tab-pane fade" id="results" role="tabpanel">
+                                <div id="test-results" class="p-3">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-play-circle me-2"></i>Click "Run Simulation" to test your solution.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="hints" role="tabpanel">
+                                <div id="hints-content" class="p-3">
+                                    <div class="text-center mb-4">
+                                        <i class="bi bi-lightbulb" style="font-size: 2.5rem; color: #ffc107;"></i>
+                                        <h5 class="mb-2">Progressive Hints</h5>
+                                        <p class="text-muted mb-3">Click "Show Next Hint" to reveal hints one by one</p>
+                                    </div>
+                                    
+                                    <div id="hints-container">
+                                        <!-- Hints will be dynamically loaded here -->
+                                    </div>
+                                    
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-outline-warning" id="show-hint-btn">
+                                            <i class="bi bi-lightbulb me-2"></i>Show Next Hint
+                                        </button>
+                                        <button class="btn btn-outline-secondary ms-2 d-none" id="reset-hints-btn">
+                                            <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Hints
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="mt-3 text-center">
+                                        <small class="text-muted">
+                                            <span id="hints-progress">0</span> of <span id="total-hints">3</span> hints revealed
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="learning" role="tabpanel">
+                                <div id="learning-materials" class="p-3 markdown-content">
+                                    <h3>📚 Learning Resources</h3>
+                                    
+                                    <h4>Go Functions</h4>
+                                    <p>Functions in Go are declared using the <code>func</code> keyword followed by the function name, parameters, and return type.</p>
+                                    
+                                    <pre><code class="language-go">func functionName(param1 type1, param2 type2) returnType {
+    // function body
+    return value
+}</code></pre>
+                                    
+                                    <h4>Function Parameters</h4>
+                                    <p>Go functions can have zero or more parameters. If consecutive parameters have the same type, you can omit the type from all but the last:</p>
+                                    
+                                    <pre><code class="language-go">func add(a, b int) int {
+    return a + b
+}</code></pre>
+                                    
+                                    <h4>Return Values</h4>
+                                    <p>Functions can return multiple values. This challenge requires returning a single integer.</p>
+                                    
+                                    <div class="alert alert-info mt-3">
+                                        <h5 class="alert-heading">💡 Pro Tip</h5>
+                                        <p class="mb-0">
+                                            Go's syntax is designed to be simple and readable. The sum function you're implementing is one of the most basic operations in programming!
+                                        </p>
+                                    </div>
+                                    
+                                    <h4>🔗 Additional Resources</h4>
+                                    <ul>
+                                        <li><a href="https://tour.golang.org/basics/4" target="_blank">A Tour of Go - Functions</a></li>
+                                        <li><a href="https://gobyexample.com/functions" target="_blank">Go by Example - Functions</a></li>
+                                        <li><a href="https://golang.org/doc/effective_go.html#functions" target="_blank">Effective Go - Functions</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="btn btn-primary" id="run-button">
+                                <span class="spinner-border spinner-border-sm d-none" id="run-spinner" role="status" aria-hidden="true"></span>
+                                <span id="run-text">Run Simulation</span>
+                            </button>
+                            <a href="https://github.com/RezaSi/go-interview-practice" class="btn btn-success">
+                                <i class="bi bi-github me-1"></i>Try Full Version
+                            </a>
+                        </div>
+                        
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="row">
+            <div class="col">
+                <div class="card bg-primary text-white fade-in">
+                    <div class="card-body text-center py-5">
+                        <h3 class="card-title">Ready to Master Go Programming?</h3>
+                        <p class="card-text lead mb-4">
+                            This was just a taste! Get access to all 30+ challenges with automated testing, 
+                            submissions, leaderboards, AI interview simulation, and much more.
+                        </p>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="https://github.com/RezaSi/go-interview-practice" class="btn btn-light btn-lg">
+                                <i class="bi bi-github me-2"></i>Start Learning Now
+                            </a>
+                            <a href="https://github.com/RezaSi/go-interview-practice#-quick-start" class="btn btn-outline-light btn-lg">
+                                <i class="bi bi-book me-2"></i>Setup Guide
+                            </a>
+                        </div>
+                        <div class="mt-4">
+                            <small class="text-white-50">
+                                ⭐ Free forever • 500+ GitHub stars • 30+ challenges • Active community
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3">
+                        <a href="https://github.com/RezaSi/go-interview-practice" class="text-decoration-none me-3">
+                            <i class="bi bi-github me-1"></i>GitHub
+                        </a>
+                        <a href="https://github.com/sponsors/RezaSi" class="text-decoration-none">
+                            <i class="bi bi-heart-fill me-1"></i>Sponsor
+                        </a>
+                    </div>
+                    <small class="text-muted">
+                        © 2025 Go Interview Practice. Open source and free forever.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/go.min.js"></script>
+    
+    <!-- Ace Editor - Load before initialization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-golang.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/theme-chrome.js"></script>
+
+    <script>
+        const challengeTemplate = 'package main\n\nimport "fmt"\n\n// TODO: Implement the Sum function\n// It should take two integers and return their sum\nfunc Sum(a int, b int) int {\n    // Your code here\n    return 0\n}\n\nfunc main() {\n    // Test your function\n    result1 := Sum(2, 3)\n    fmt.Printf("Sum(2, 3) = %d\\\\n", result1)\n    \n    result2 := Sum(-5, 10)\n    fmt.Printf("Sum(-5, 10) = %d\\\\n", result2)\n}';
+
+        const testCode = 'package main\n\nimport (\n    "testing"\n)\n\nfunc TestSum(t *testing.T) {\n    tests := []struct {\n        a, b, expected int\n    }{\n        {2, 3, 5},\n        {-5, 10, 5},\n        {0, 0, 0},\n        {-1, -1, -2},\n        {100, 200, 300},\n    }\n\n    for _, test := range tests {\n        result := Sum(test.a, test.b)\n        if result != test.expected {\n            t.Errorf("Sum(%d, %d) = %d; expected %d", \n                test.a, test.b, result, test.expected)\n        }\n    }\n}';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if hljs is loaded
+            console.log('DOMContentLoaded fired');
+            console.log('hljs available:', typeof hljs !== 'undefined');
+            console.log('ace available:', typeof ace !== 'undefined');
+            
+            // Initialize syntax highlighting if available
+            if (typeof hljs !== 'undefined') {
+                hljs.highlightAll();
+                console.log('Syntax highlighting initialized');
+            } else {
+                console.warn('hljs not available, skipping syntax highlighting');
+            }
+
+            // Wait for all libraries to be fully loaded
+            setTimeout(() => {
+                console.log('Starting editor initialization after timeout');
+                console.log('hljs available now:', typeof hljs !== 'undefined');
+                console.log('ace available now:', typeof ace !== 'undefined');
+                try {
+                    // Initialize code editor for solution
+                    console.log('Initializing editor...');
+                    const editorElement = document.getElementById("editor");
+                    if (!editorElement) {
+                        console.error('Editor element not found!');
+                        return;
+                    }
+
+                    const editor = ace.edit("editor");
+                    editor.setTheme("ace/theme/chrome");
+                    editor.session.setMode("ace/mode/golang");
+                    editor.setValue(challengeTemplate, -1);
+                    editor.clearSelection();
+                    console.log('Editor initialized successfully!');
+            
+                    // Set additional options
+                    editor.setOptions({
+                        fontSize: "14px",
+                        showPrintMargin: false,
+                        showGutter: true,
+                        highlightActiveLine: true,
+                        wrap: true
+                    });
+                    
+                    // Auto-save functionality like web-ui
+                    let saveTimeout;
+                    editor.session.on('change', function() {
+                        clearTimeout(saveTimeout);
+                        saveTimeout = setTimeout(() => {
+                            localStorage.setItem('demo_challenge_code', editor.getValue());
+                        }, 1000);
+                    });
+                    
+                    // Load saved code if exists
+                    const savedCode = localStorage.getItem('demo_challenge_code');
+                    if (savedCode && savedCode !== challengeTemplate) {
+                        editor.setValue(savedCode, 1);
+                    }
+
+                    // Initialize test editor when Tests tab is clicked
+                    let testEditorInitialized = false;
+                    const testTab = document.getElementById('tests-tab');
+                    if (testTab) {
+                        testTab.addEventListener('shown.bs.tab', function() {
+                            if (!testEditorInitialized) {
+                                console.log('Initializing test editor...');
+                                const testEditorElement = document.getElementById("test-editor");
+                                if (testEditorElement) {
+                                    const testEditor = ace.edit("test-editor");
+                                    testEditor.setTheme("ace/theme/chrome");
+                                    testEditor.session.setMode("ace/mode/golang");
+                                    testEditor.setValue(testCode, -1);
+                                    testEditor.setReadOnly(true);
+                                    testEditor.clearSelection();
+                                    testEditor.setOptions({
+                                        fontSize: "14px",
+                                        showPrintMargin: false,
+                                        showGutter: true,
+                                        wrap: true
+                                    });
+                                    testEditorInitialized = true;
+                                    console.log('Test editor initialized successfully!');
+                                    
+                                    // Resize editor to fit
+                                    setTimeout(() => {
+                                        testEditor.resize();
+                                    }, 100);
+                                }
+                            }
+                        });
+                    }
+
+                    // Make editor globally accessible for the run button
+                    window.demoEditor = editor;
+
+                    // Handle Run Demo button
+                    const runButton = document.getElementById('run-button');
+                    const runSpinner = document.getElementById('run-spinner');
+                    const runText = document.getElementById('run-text');
+                    
+                    if (runButton) {
+                        runButton.addEventListener('click', function() {
+                            if (!window.demoEditor) {
+                                console.error('Editor not initialized!');
+                                return;
+                            }
+                            const code = window.demoEditor.getValue();
+                            const resultsTab = document.getElementById('results-tab');
+                            const resultsDiv = document.getElementById('test-results');
+                            
+                            // Disable button and show spinner
+                            runButton.disabled = true;
+                            runSpinner.classList.remove('d-none');
+                            runText.textContent = 'Simulating...';
+                            
+                            // Switch to results tab
+                            resultsTab.click();
+                            
+                            // Show loading indicator
+                            resultsDiv.innerHTML = `
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <p class="text-center mt-2">Analyzing your solution...</p>
+                            `;
+                            
+                            // Simulate test execution
+                            setTimeout(() => {
+                                const hasImplementation = code.includes('return a + b') || 
+                                                        code.includes('return a+b') ||
+                                                        (code.includes('a') && code.includes('b') && 
+                                                         code.includes('+') && !code.includes('return 0'));
+                                
+                                let outputHtml = '';
+                                
+                                if (hasImplementation) {
+                                    outputHtml = `
+                                        <div class="alert alert-success mb-3">
+                                            <h4 class="alert-heading">Great! Your solution looks correct! 🎉</h4>
+                                            <p>You've successfully implemented the Sum function.</p>
+                                            <hr>
+                                            <p class="mb-0">In the full version, this would run actual Go tests and provide detailed feedback.</p>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header">Expected Demo Output</div>
+                                            <div class="card-body">
+                                                <pre><code class="language-go">Sum(2, 3) = 5
+Sum(-5, 10) = 5
+
+PASS: All tests passed!
+--- PASS: TestSum (0.00s)
+ok      challenge1      0.001s</code></pre>
+                                            </div>
+                                        </div>
+                                    `;
+                                } else {
+                                    outputHtml = `
+                                        <div class="alert alert-warning mb-3">
+                                            <h4 class="alert-heading">Not quite there yet!</h4>
+                                            <p>It looks like you haven't implemented the Sum function yet. Try adding the logic to add the two parameters together.</p>
+                                            <hr>
+                                            <p class="mb-0"><strong>Hint:</strong> You need to return <code>a + b</code></p>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header">Demo Output</div>
+                                            <div class="card-body">
+                                                <pre><code class="language-go">Sum(2, 3) = 0
+Sum(-5, 10) = 0
+
+FAIL: TestSum
+--- FAIL: TestSum (0.00s)
+    Expected 5, got 0
+FAIL    challenge1      0.001s</code></pre>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                resultsDiv.innerHTML = outputHtml;
+                                
+                                // Apply syntax highlighting
+                                if (typeof hljs !== 'undefined') {
+                                    resultsDiv.querySelectorAll('pre code').forEach((el) => {
+                                        hljs.highlightElement(el);
+                                    });
+                                }
+                                
+                                // Re-enable button and hide spinner
+                                runButton.disabled = false;
+                                runSpinner.classList.add('d-none');
+                                runText.textContent = 'Run Simulation';
+                            }, 1500);
+                        });
+                    }
+
+                    // Initialize tooltips
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl);
+                    });
+
+                    // Initialize hints system (matching web-ui implementation)
+                    const hintsMarkdown = '## Hint 1: Function Signature\n\nLook at the function signature carefully. You need to return an `int` and you have two `int` parameters `a` and `b`.\n\n## Hint 2: Basic Math Operation\n\nThis is a simple addition problem. In Go, you can add two numbers using the `+` operator.\n\n## Hint 3: Return Statement\n\nUse the `return` keyword followed by the result. For example: `return a + b`';
+
+                    // Initialize hints using the same function as web-ui
+                    initializeHints(hintsMarkdown);
+
+            function initializeHints(hintsMarkdown) {
+                const hintsContainer = document.getElementById('hints-container');
+                const showHintBtn = document.getElementById('show-hint-btn');
+                const resetHintsBtn = document.getElementById('reset-hints-btn');
+                const hintsProgress = document.getElementById('hints-progress');
+                const totalHints = document.getElementById('total-hints');
+                
+                if (!hintsContainer || !showHintBtn || !resetHintsBtn) return;
+                
+                // Parse hints from markdown
+                const hints = parseHintsFromMarkdown(hintsMarkdown);
+                let currentHintIndex = 0;
+                
+                // Update total hints count
+                totalHints.textContent = hints.length;
+                
+                // Show hint button functionality
+                showHintBtn.addEventListener('click', function() {
+                    if (currentHintIndex < hints.length) {
+                        showHint(hints[currentHintIndex], currentHintIndex + 1);
+                        currentHintIndex++;
+                        updateHintsProgress();
+                        
+                        // Show reset button when at least one hint is shown
+                        if (currentHintIndex > 0) {
+                            resetHintsBtn.classList.remove('d-none');
+                        }
+                        
+                        // Hide show button when all hints are revealed
+                        if (currentHintIndex >= hints.length) {
+                            showHintBtn.classList.add('d-none');
+                        }
+                    }
+                });
+                
+                // Reset hints button functionality
+                resetHintsBtn.addEventListener('click', function() {
+                    currentHintIndex = 0;
+                    hintsContainer.innerHTML = '';
+                    showHintBtn.classList.remove('d-none');
+                    resetHintsBtn.classList.add('d-none');
+                    updateHintsProgress();
+                });
+                
+                function showHint(hint, hintNumber) {
+                    const hintElement = document.createElement('div');
+                    hintElement.className = 'alert alert-info hint-item mb-3';
+                    hintElement.style.animation = 'slideIn 0.3s ease-in-out';
+                    hintElement.innerHTML = `
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-warning text-dark me-2">Hint ${hintNumber}</span>
+                            </div>
+                            <div class="flex-grow-1 markdown-content">
+                                ${hint.content}
+                            </div>
+                        </div>
+                    `;
+                    hintsContainer.appendChild(hintElement);
+                    
+                    // Scroll hint into view
+                    hintElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                
+                function updateHintsProgress() {
+                    hintsProgress.textContent = currentHintIndex;
+                }
+                
+                function parseHintsFromMarkdown(markdown) {
+                    if (!markdown || markdown.trim() === '' || markdown.includes('*No hints available')) {
+                        return [];
+                    }
+                    
+                    const hints = [];
+                    const lines = markdown.split('\n');
+                    let currentHint = null;
+                    
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        
+                        // Check if this is a hint header (## Hint N:)
+                        const hintMatch = trimmedLine.match(/^##\s+Hint\s+\d+:\s*(.*)$/i);
+                        if (hintMatch) {
+                            // Save previous hint if exists
+                            if (currentHint) {
+                                hints.push(currentHint);
+                            }
+                            
+                            // Start new hint
+                            currentHint = {
+                                title: hintMatch[1],
+                                content: ''
+                            };
+                        } else if (currentHint && trimmedLine && !trimmedLine.startsWith('#')) {
+                            // Add content to current hint
+                            if (currentHint.content) {
+                                currentHint.content += '\n';
+                            }
+                            currentHint.content += line;
+                        }
+                    }
+                    
+                    // Add the last hint
+                    if (currentHint) {
+                        hints.push(currentHint);
+                    }
+                    
+                    // Convert markdown content to HTML
+                    hints.forEach(hint => {
+                        const tempDiv = document.createElement('div');
+                        // Simple markdown conversion
+                        let content = hint.content.trim();
+                        content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
+                        content = content.replace(/\n/g, '<br>');
+                        hint.content = content;
+                    });
+                    
+                    return hints;
+                }
+            }
+
+                                            // Apply syntax highlighting to learning materials
+                        setTimeout(() => {
+                            if (typeof hljs !== 'undefined') {
+                                document.querySelectorAll('#learning-materials pre code').forEach((el) => {
+                                    hljs.highlightElement(el);
+                                });
+                            }
+                        }, 100);
+
+                } catch (error) {
+                    console.error('Error initializing editor:', error);
+                }
+            }, 1000); // Wait 1 second for all libraries to be fully loaded
+        });
+    </script>
+</body>
+</html>
