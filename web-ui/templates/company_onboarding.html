@@ -103,6 +103,48 @@
         font-size: 0.9rem;
         padding: 0.4rem 0.8rem;
     }
+    
+    /* Progress tracker responsive adjustments */
+    .progress-steps .step-item {
+        padding: 0.5rem 0;
+    }
+    
+    .step-indicator {
+        width: 35px;
+        height: 35px;
+        margin-right: 0.75rem;
+    }
+    
+    .step-title {
+        font-size: 0.85rem;
+    }
+    
+    .step-status {
+        font-size: 0.7rem;
+    }
+    
+    .achievement-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .achievement-badge {
+        width: 35px;
+        height: 35px;
+    }
+    
+    /* Chat interface responsive */
+    .chat-messages {
+        max-height: 250px;
+    }
+    
+    .message-bubble {
+        max-width: 90%;
+    }
+    
+    .quick-prompts .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
 }
 
 /* Fix AI Mentor tab active state styling */
@@ -124,48 +166,345 @@
     background: rgba(255,255,255,0.1) !important;
     color: rgba(255,255,255,0.9) !important;
 }
+
+/* Progress Tracker Styles */
+.progress-steps {
+    padding: 0;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.step-item:last-child {
+    border-bottom: none;
+}
+
+.step-item:hover {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    margin: 0 -0.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.step-indicator {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+}
+
+.step-item.completed .step-indicator {
+    background: #28a745;
+    color: white;
+}
+
+.step-item.active .step-indicator {
+    background: #667eea;
+    color: white;
+}
+
+.step-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.step-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.step-status {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.step-item.completed .step-status {
+    color: #28a745;
+}
+
+/* Achievement Badges */
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.achievement-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    cursor: help;
+}
+
+.achievement-badge.earned {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #8b7355;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.achievement-badge:hover {
+    transform: scale(1.05);
+}
+
+/* Quick Actions */
+.quick-actions .btn {
+    transition: all 0.2s ease;
+}
+
+.quick-actions .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Chat Interface Styles */
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 500px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    max-height: 350px;
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    animation: fadeInUp 0.3s ease;
+}
+
+.chat-message.user {
+    text-align: right;
+}
+
+.chat-message.ai {
+    text-align: left;
+}
+
+.message-bubble {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    max-width: 85%;
+    word-wrap: break-word;
+}
+
+.chat-message.user .message-bubble {
+    background: #667eea;
+    color: white;
+}
+
+.chat-message.ai .message-bubble {
+    background: white;
+    color: #333;
+    border: 1px solid #e9ecef;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.chat-input {
+    flex: 1;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    padding: 0.5rem 1rem;
+}
+
+.chat-send-btn {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-input-area .btn-outline-secondary {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: #6c757d;
+    border-color: #dee2e6;
+}
+
+.chat-input-area .btn-outline-secondary:hover {
+    color: #dc3545;
+    border-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.typing-indicator {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 18px;
+    display: inline-block;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Code block styling in chat - matches app style */
+.chat-messages pre {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0.75rem 0;
+    overflow-x: auto;
+}
+
+.chat-messages code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+}
 </style>
 
 <!-- Original Onboarding Overview UI -->
 <div class="container-fluid" id="onboarding-overview">
     <div class="row">
-        <!-- Sidebar Navigation -->
+        <!-- Progress Tracker & Quick Actions Sidebar -->
         <div class="col-lg-3 col-md-4">
             <div class="card sticky-top" style="top: 100px;">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-mortarboard me-2"></i>Onboarding Journey</h5>
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Your Progress</h5>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush" id="onboarding-nav">
-                        <a href="#overview" class="list-group-item list-group-item-action active" data-step="overview">
-                            <i class="bi bi-house me-2"></i>Overview
-                            <span class="badge bg-success ms-auto" id="overview-status">Start</span>
-                        </a>
-                        <a href="#learn-basics" class="list-group-item list-group-item-action" data-step="learn-basics">
-                            <i class="bi bi-code-square me-2"></i>Learn Basics
-                            <span class="badge bg-secondary ms-auto" id="basics-progress">0/5</span>
-                        </a>
-                        <a href="#learn-packages" class="list-group-item list-group-item-action" data-step="learn-packages">
-                            <i class="bi bi-box me-2"></i>Learn Packages
-                            <span class="badge bg-secondary ms-auto" id="packages-progress">0/3</span>
-                        </a>
-                        <a href="#completion" class="list-group-item list-group-item-action" data-step="completion">
-                            <i class="bi bi-trophy me-2"></i>Completion
-                            <span class="badge bg-secondary ms-auto" id="completion-status">Locked</span>
-                        </a>
+                <div class="card-body">
+                    <!-- Overall Progress Circle -->
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <svg width="100" height="100" class="progress-ring">
+                                <circle stroke="#e9ecef" stroke-width="8" fill="transparent" r="40" cx="50" cy="50"/>
+                                <circle stroke="#28a745" stroke-width="8" fill="transparent" r="40" cx="50" cy="50" 
+                                        stroke-dasharray="251" stroke-dashoffset="251" id="progress-circle"
+                                        style="transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.5s ease-in-out;"/>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <div class="fw-bold fs-5" id="progress-percentage">0%</div>
+                                <small class="text-muted">Complete</small>
                     </div>
                 </div>
-                <div class="card-footer">
-                    <div class="progress mb-2">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 0%" id="overall-progress"></div>
                     </div>
-                    <small class="text-muted">Overall Progress: <span id="progress-text">0%</span></small>
-                    
-                    <!-- Start Journey Button -->
-                    <div class="mt-3 d-grid">
-                        <button class="btn btn-primary" onclick="startOnboardingSetup()">
-                            <i class="bi bi-play-circle me-2"></i>Start Your Journey
+
+                    <!-- Progress Steps -->
+                    <div class="progress-steps mb-4">
+                        <div class="step-item" data-step="overview">
+                            <div class="step-indicator">
+                                <i class="bi bi-house"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Overview</div>
+                                <div class="step-status" id="overview-status">Ready to start</div>
+                            </div>
+                        </div>
+                        <div class="step-item" data-step="learn-basics">
+                            <div class="step-indicator">
+                                <i class="bi bi-code-square"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Learn Basics</div>
+                                <div class="step-status" id="basics-status">0/5 challenges</div>
+                            </div>
+                        </div>
+                        <div class="step-item" data-step="learn-packages">
+                            <div class="step-indicator">
+                                <i class="bi bi-box"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Learn Packages</div>
+                                <div class="step-status" id="packages-status">0/3 packages</div>
+                            </div>
+                        </div>
+                        <div class="step-item" data-step="completion">
+                            <div class="step-indicator">
+                                <i class="bi bi-trophy"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Completion</div>
+                                <div class="step-status" id="completion-status">Locked</div>
+                    </div>
+                </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h6 class="fw-semibold mb-3">Quick Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-sm" onclick="startOnboardingSetup()">
+                                <i class="bi bi-play-circle me-2"></i>Start Journey
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="showSection('overview')" id="back-to-overview">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Overview
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="openAIMentorChat()" id="open-mentor-chat" style="display: none;">
+                                <i class="bi bi-chat-dots me-2"></i>Chat with Mentor
                         </button>
+                    </div>
+                </div>
+
+                    <!-- Achievement Badges -->
+                    <div class="achievements mt-4" id="achievement-section" style="display: none;">
+                        <h6 class="fw-semibold mb-3">Achievements</h6>
+                        <div class="achievement-grid">
+                            <div class="achievement-badge" data-achievement="first-challenge" title="Completed first challenge">
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                            <div class="achievement-badge" data-achievement="speed-demon" title="Solved challenge in under 5 minutes">
+                                <i class="bi bi-lightning-fill"></i>
+                            </div>
+                            <div class="achievement-badge" data-achievement="perfectionist" title="Got 100% on code review">
+                                <i class="bi bi-gem"></i>
+                            </div>
+                            <div class="achievement-badge" data-achievement="package-master" title="Completed all package challenges">
+                                <i class="bi bi-award-fill"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -386,7 +725,7 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- AI Assistant Tab (from Interview) -->
+                                    <!-- AI Assistant Tab (Enhanced with Chat) -->
                                     <div class="tab-pane fade h-100" id="ai-content" role="tabpanel">
                                         <div class="p-3 h-100 d-flex flex-column">
                                             <div class="text-center mb-3">
@@ -397,8 +736,21 @@
                                                 <p class="small text-muted mb-0">Your learning companion</p>
                                             </div>
                                             
+                                            <!-- Chat Mode Toggle -->
+                                            <div class="text-center mb-3">
+                                                <div class="btn-group btn-group-sm" role="group" aria-label="AI Mode">
+                                                    <input type="radio" class="btn-check" name="ai-mode" id="quick-mode" autocomplete="off" checked>
+                                                    <label class="btn btn-outline-primary" for="quick-mode">Quick Help</label>
+
+                                                    <input type="radio" class="btn-check" name="ai-mode" id="chat-mode" autocomplete="off">
+                                                    <label class="btn btn-outline-primary" for="chat-mode">Chat</label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Quick Actions Mode -->
+                                            <div id="quick-actions-mode">
                                             <!-- AI Action Buttons -->
-                                            <div class="d-grid gap-2">
+                                                <div class="d-grid gap-2 mb-3">
                                                 <button type="button" class="btn btn-primary btn-sm" onclick="requestAIReview()">
                                                     <i class="bi bi-search me-1"></i> Get AI Code Review
                                                 </button>
@@ -422,24 +774,74 @@
                                             </div>
                                             
                                             <!-- AI Response Area -->
-                                            <div id="ai-response-area" class="mt-3" style="display: none;">
-                                                <div class="card border-0 bg-light">
+                                                <div id="ai-response-area" class="flex-grow-1" style="display: none;">
+                                                    <div class="card border-0 bg-light h-100">
                                                     <div class="card-header bg-primary text-white py-2">
                                                         <h6 class="mb-0">
                                                             <i class="bi bi-robot me-1"></i>
                                                             <span id="ai-response-title">AI Feedback</span>
                                                         </h6>
                                                     </div>
-                                                    <div class="card-body p-3" id="ai-response-content">
+                                                        <div class="card-body p-3 overflow-auto" id="ai-response-content" style="max-height: 300px;">
                                                         <!-- AI responses will appear here -->
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             
-                                            <div class="mt-auto">
+                                            <!-- Chat Mode -->
+                                            <div id="chat-mode-interface" class="flex-grow-1" style="display: none;">
+                                                <div class="chat-interface h-100">
+                                                    <!-- Welcome Message -->
+                                                    <div class="chat-messages" id="chat-messages">
+                                                        <div class="chat-message ai">
+                                                            <div class="message-bubble">
+                                                                <div class="d-flex align-items-center mb-2">
+                                                                    <i class="bi bi-robot me-2 text-primary"></i>
+                                                                    <strong>AI Mentor</strong>
+                                                                </div>
+                                                                <p class="mb-2">Hi! I'm your AI mentor. I'm here to help you with Go programming concepts, explain challenges, review your code, and answer any questions you have about the current challenge or Go in general.</p>
+                                                <p class="mb-0"><strong>💡 Pro tip:</strong> I can automatically see your current code in the editor, so feel free to ask me about it directly! No need to copy-paste. How can I assist you today? 🚀</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Chat Input -->
+                                                    <div class="chat-input-area">
+                                                        <input type="text" 
+                                                               class="form-control chat-input" 
+                                                               id="chat-input" 
+                                                               placeholder="Ask me anything about Go or this challenge..."
+                                                               maxlength="500">
+                                                        <button class="btn btn-primary chat-send-btn" onclick="sendChatMessage()" id="chat-send-btn">
+                                                            <i class="bi bi-send"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-secondary btn-sm" onclick="clearChatHistory()" title="Clear chat history">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <!-- Quick Chat Prompts -->
+                                                    <div class="quick-prompts mt-2">
+                                                        <div class="d-flex flex-wrap gap-1">
+                                                            <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickPrompt('Explain this challenge')">
+                                                                Explain challenge
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickPrompt('Help with Go syntax')">
+                                                                Go syntax help
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickPrompt('Best practices')">
+                                                                Best practices
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mt-auto" id="ai-status-area">
                                                 <div class="alert alert-success py-2 px-3 mb-0 small">
                                                     <i class="bi bi-check-circle me-1"></i>
-                                                    <strong>AI Ready!</strong> Click buttons above to get AI assistance.
+                                                    <strong>AI Ready!</strong> Switch to chat mode for conversational help.
                                                 </div>
                                             </div>
                                         </div>

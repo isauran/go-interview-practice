@@ -1318,3 +1318,53 @@ func (h *APIHandler) GetSponsorsDebug(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+// AIMentorChat handles conversational chat with the AI mentor
+func (h *APIHandler) AIMentorChat(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var request struct {
+		Message             string                 `json:"message"`
+		ChallengeID         int                    `json:"challengeId"`
+		ConversationHistory []services.ChatMessage `json:"conversationHistory"`
+		CodeContext         string                 `json:"codeContext"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, "Invalid request data", http.StatusBadRequest)
+		return
+	}
+
+	// Validate message
+	if strings.TrimSpace(request.Message) == "" {
+		http.Error(w, "Message cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	// Get challenge if provided
+	var challenge *models.Challenge
+	if request.ChallengeID > 0 {
+		if c, exists := h.challengeService.GetChallenge(request.ChallengeID); exists {
+			challenge = c
+		}
+	}
+
+	// Call AI service for chat response
+	chatResponse, err := h.aiService.ChatWithMentor(
+		request.Message,
+		challenge,
+		request.ConversationHistory,
+		request.CodeContext,
+	)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Chat service error: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(chatResponse)
+}

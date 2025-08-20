@@ -93,6 +93,7 @@ func (s *Server) SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/api/ai/interviewer-questions", apiHandler.AIInterviewerQuestions)
 	mux.HandleFunc("/api/ai/code-hint", apiHandler.AICodeHint)
 	mux.HandleFunc("/api/ai/debug", apiHandler.AIDebugResponse)
+	mux.HandleFunc("/api/ai/mentor-chat", apiHandler.AIMentorChat)
 
 	// Company onboarding API routes
 	mux.HandleFunc("/api/onboarding/challenges", apiHandler.GetAllChallenges)

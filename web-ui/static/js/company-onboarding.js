@@ -1971,7 +1971,18 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
         const completedCount = this.progress.completedChallenges ? this.progress.completedChallenges.length : 0;
         const progressPercent = totalChallenges > 0 ? Math.round((completedCount / totalChallenges) * 100) : 0;
 
-        // Update overall progress bar
+        // Update circular progress indicator
+        const progressCircle = document.getElementById('progress-circle');
+        const progressPercentage = document.getElementById('progress-percentage');
+        
+        if (progressCircle && progressPercentage) {
+            const circumference = 2 * Math.PI * 40; // radius = 40
+            const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = strokeDashoffset;
+            progressPercentage.textContent = progressPercent + '%';
+        }
+
+        // Fallback: Update old progress bar if exists
         const progressBar = document.getElementById('overall-progress');
         const progressText = document.getElementById('progress-text');
         
@@ -1982,9 +1993,20 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
             progressText.textContent = progressPercent + '%';
         }
 
+        // Update step indicators
+        this.updateStepIndicators();
+        
         // Update individual section progress
         this.updateBasicsProgress();
         this.updatePackagesProgress();
+        
+        // Show achievements if user has made progress
+        if (progressPercent > 0) {
+            this.showAchievements();
+        }
+        
+        // Show/hide mentor chat button
+        this.updateQuickActions();
     }
 
     updateBasicsProgress() {
@@ -2098,6 +2120,157 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
         document.querySelector(`#onboarding-nav a[data-step="${section}"]`)?.classList.add('active');
 
         this.currentStep = section;
+    }
+
+    updateStepIndicators() {
+        const steps = document.querySelectorAll('.step-item');
+        
+        steps.forEach(stepElement => {
+            const stepType = stepElement.dataset.step;
+            const indicator = stepElement.querySelector('.step-indicator');
+            const status = stepElement.querySelector('.step-status');
+            
+            if (!status) return; // Skip if new UI elements not present
+            
+            // Remove existing classes
+            stepElement.classList.remove('completed', 'active');
+            
+            switch(stepType) {
+                case 'overview':
+                    if (this.currentStep === 'overview') {
+                        stepElement.classList.add('active');
+                        status.textContent = 'Current step';
+                    } else {
+                        stepElement.classList.add('completed');
+                        status.textContent = 'Completed';
+                    }
+                    break;
+                    
+                case 'learn-basics':
+                    const basicProgress = this.getBasicChallengeProgress();
+                    status.textContent = `${basicProgress.completed}/${basicProgress.total} challenges`;
+                    if (basicProgress.completed === basicProgress.total && basicProgress.total > 0) {
+                        stepElement.classList.add('completed');
+                    } else if (this.currentStep === 'learn-basics') {
+                        stepElement.classList.add('active');
+                    }
+                    break;
+                    
+                case 'learn-packages':
+                    const packageProgress = this.getPackageProgress();
+                    status.textContent = `${packageProgress.completed}/${packageProgress.total} packages`;
+                    if (packageProgress.completed === packageProgress.total && packageProgress.total > 0) {
+                        stepElement.classList.add('completed');
+                    } else if (this.currentStep === 'learn-packages') {
+                        stepElement.classList.add('active');
+                    }
+                    break;
+                    
+                case 'completion':
+                    const isComplete = this.isOnboardingComplete();
+                    if (isComplete) {
+                        stepElement.classList.add('completed');
+                        status.textContent = 'Congratulations!';
+                    } else {
+                        status.textContent = 'Locked';
+                    }
+                    break;
+            }
+            
+            // Make step clickable if accessible
+            if (stepElement.classList.contains('completed') || stepElement.classList.contains('active')) {
+                stepElement.style.cursor = 'pointer';
+                stepElement.onclick = () => this.showSection(stepType);
+            } else {
+                stepElement.style.cursor = 'not-allowed';
+                stepElement.onclick = null;
+            }
+        });
+    }
+
+    showAchievements() {
+        const achievementSection = document.getElementById('achievement-section');
+        if (achievementSection) {
+            achievementSection.style.display = 'block';
+            this.updateAchievementBadges();
+        }
+    }
+
+    updateAchievementBadges() {
+        const badges = document.querySelectorAll('.achievement-badge');
+        
+        badges.forEach(badge => {
+            const achievement = badge.dataset.achievement;
+            const isEarned = this.checkAchievement(achievement);
+            
+            if (isEarned) {
+                badge.classList.add('earned');
+            } else {
+                badge.classList.remove('earned');
+            }
+        });
+    }
+
+    checkAchievement(achievement) {
+        switch(achievement) {
+            case 'first-challenge':
+                return this.getCompletedChallenges().length > 0;
+            case 'speed-demon':
+                // This would need to be tracked with timing data
+                return false;
+            case 'perfectionist':
+                // This would need to track AI review scores
+                return false;
+            case 'package-master':
+                const packageProgress = this.getPackageProgress();
+                return packageProgress.completed === packageProgress.total && packageProgress.total > 0;
+            default:
+                return false;
+        }
+    }
+
+    getBasicChallengeProgress() {
+        const total = this.selectedBasicChallenges.length;
+        const completed = this.getCompletedChallenges().filter(id => 
+            this.selectedBasicChallenges.includes(id)
+        ).length;
+        return { completed, total };
+    }
+
+    getPackageProgress() {
+        const total = this.selectedPackages.length;
+        // This would need to be implemented based on package completion tracking
+        const completed = 0; // Placeholder
+        return { completed, total };
+    }
+
+    getCompletedChallenges() {
+        return this.progress.completedChallenges || [];
+    }
+
+    isOnboardingComplete() {
+        const basicProgress = this.getBasicChallengeProgress();
+        const packageProgress = this.getPackageProgress();
+        return basicProgress.completed === basicProgress.total && 
+               packageProgress.completed === packageProgress.total &&
+               basicProgress.total > 0 && packageProgress.total > 0;
+    }
+
+    updateQuickActions() {
+        const backToOverviewBtn = document.getElementById('back-to-overview');
+        const openMentorChatBtn = document.getElementById('open-mentor-chat');
+        
+        if (backToOverviewBtn) {
+            // Show back button when not on overview
+            backToOverviewBtn.style.display = this.currentStep === 'overview' ? 'none' : 'block';
+        }
+        
+        if (openMentorChatBtn) {
+            // Show mentor chat button when in learning session or have progress
+            const hasProgress = this.getCompletedChallenges().length > 0;
+            const inLearningSession = document.getElementById('onboarding-session').style.display !== 'none';
+            openMentorChatBtn.style.display = (hasProgress || inLearningSession) ? 'block' : 'none';
+        }
     }
 
     showToast(title, message, type = 'info') {
@@ -2350,7 +2523,534 @@ function showSection(section) {
     }
 }
 
+// Chat functionality for AI Mentor
+class AIMentorChat {
+    constructor(onboarding) {
+        this.onboarding = onboarding;
+        this.conversationHistory = [];
+        this.isTyping = false;
+        this.storageKey = 'ai-mentor-chat-history';
+        this.setupEventListeners();
+        this.loadChatHistory();
+    }
+
+    setupEventListeners() {
+        // Chat mode toggle
+        const quickModeRadio = document.getElementById('quick-mode');
+        const chatModeRadio = document.getElementById('chat-mode');
+        
+        if (quickModeRadio && chatModeRadio) {
+            quickModeRadio.addEventListener('change', () => this.toggleChatMode(false));
+            chatModeRadio.addEventListener('change', () => this.toggleChatMode(true));
+        }
+
+        // Chat input
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendChatMessage();
+                }
+            });
+        }
+    }
+
+    toggleChatMode(isChatMode) {
+        const quickActionsMode = document.getElementById('quick-actions-mode');
+        const chatModeInterface = document.getElementById('chat-mode-interface');
+        const aiStatusArea = document.getElementById('ai-status-area');
+
+        if (quickActionsMode && chatModeInterface && aiStatusArea) {
+            if (isChatMode) {
+                quickActionsMode.style.display = 'none';
+                chatModeInterface.style.display = 'block';
+                aiStatusArea.style.display = 'none';
+                
+                // Focus chat input
+                const chatInput = document.getElementById('chat-input');
+                if (chatInput) {
+                    setTimeout(() => chatInput.focus(), 100);
+                }
+            } else {
+                quickActionsMode.style.display = 'block';
+                chatModeInterface.style.display = 'none';
+                aiStatusArea.style.display = 'block';
+            }
+        }
+    }
+
+    async sendChatMessage() {
+        const chatInput = document.getElementById('chat-input');
+        const message = chatInput.value.trim();
+        
+        if (!message || this.isTyping) return;
+
+        // Clear input immediately
+        chatInput.value = '';
+
+        // Add user message to chat
+        this.addMessageToChat('user', message, true);
+
+        // Show typing indicator
+        this.showTypingIndicator();
+
+        try {
+            // Get current code context if available
+            const codeContext = this.getCurrentCodeContext();
+            
+            // Show user if code is being included
+            if (codeContext) {
+                console.log('Including code context in chat:', codeContext.substring(0, 100) + '...');
+                // Add a subtle indicator that code is being shared
+                this.addCodeContextIndicator();
+            }
+            
+            // Prepare request
+            const requestData = {
+                message: message,
+                challengeId: this.onboarding.currentChallenge?.id || 0,
+                conversationHistory: this.conversationHistory,
+                codeContext: codeContext
+            };
+
+            const response = await fetch('/api/ai/mentor-chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const chatResponse = await response.json();
+            
+            // Remove typing indicator
+            this.removeTypingIndicator();
+            
+            if (chatResponse.success) {
+                // Add AI response to chat
+                this.addMessageToChat('assistant', chatResponse.message);
+                
+                // Update conversation history
+                this.conversationHistory.push(
+                    { role: 'user', content: message, timestamp: new Date().toISOString() },
+                    { role: 'assistant', content: chatResponse.message, timestamp: chatResponse.timestamp }
+                );
+                
+                // Limit history to last 20 messages (increased for better context)
+                if (this.conversationHistory.length > 20) {
+                    this.conversationHistory = this.conversationHistory.slice(-20);
+                }
+                
+                // Save to localStorage
+                this.saveChatHistory();
+                
+                // Show suggestions if available
+                if (chatResponse.suggestions && chatResponse.suggestions.length > 0) {
+                    this.showSuggestions(chatResponse.suggestions);
+                }
+            } else {
+                this.addMessageToChat('assistant', chatResponse.message || 'Sorry, I encountered an error. Please try again.');
+            }
+            
+        } catch (error) {
+            console.error('Chat error:', error);
+            this.removeTypingIndicator();
+            this.addMessageToChat('assistant', 'I\'m having trouble connecting right now. Please try again in a moment.');
+        }
+    }
+
+    sendQuickPrompt(prompt) {
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.value = prompt;
+            this.sendChatMessage();
+        }
+    }
+
+    addMessageToChat(role, content, shouldSave = true) {
+        const chatMessages = document.getElementById('chat-messages');
+        if (!chatMessages) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${role}`;
+        
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'message-bubble';
+        
+        if (role === 'assistant') {
+            bubbleDiv.innerHTML = `
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-robot me-2 text-primary"></i>
+                    <strong>AI Mentor</strong>
+                </div>
+                <div class="message-content">${this.formatMessageContent(content)}</div>
+            `;
+        } else {
+            bubbleDiv.innerHTML = `<div class="message-content">${this.escapeHtml(content)}</div>`;
+        }
+        
+        messageDiv.appendChild(bubbleDiv);
+        chatMessages.appendChild(messageDiv);
+        
+        // Apply syntax highlighting to any code blocks in the new message
+        if (role === 'assistant') {
+            setTimeout(() => {
+                messageDiv.querySelectorAll('pre code').forEach((el) => {
+                    if (typeof hljs !== 'undefined') {
+                        hljs.highlightElement(el);
+                    }
+                });
+            }, 100);
+        }
+        
+        // Auto-save chat history if requested
+        if (shouldSave) {
+            setTimeout(() => this.saveChatHistory(), 500);
+        }
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    showTypingIndicator() {
+        this.isTyping = true;
+        const chatMessages = document.getElementById('chat-messages');
+        if (!chatMessages) return;
+
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-message ai typing-message';
+        typingDiv.innerHTML = `
+            <div class="typing-indicator">
+                <i class="bi bi-robot me-2 text-primary"></i>
+                AI Mentor is typing<span class="typing-dots">...</span>
+            </div>
+        `;
+        
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    removeTypingIndicator() {
+        this.isTyping = false;
+        const typingMessage = document.querySelector('.typing-message');
+        if (typingMessage) {
+            typingMessage.remove();
+        }
+    }
+
+    showSuggestions(suggestions) {
+        const quickPrompts = document.querySelector('.quick-prompts .d-flex');
+        if (!quickPrompts) return;
+
+        // Clear existing suggestions
+        quickPrompts.innerHTML = '';
+        
+        // Add new suggestions
+        suggestions.forEach(suggestion => {
+            const button = document.createElement('button');
+            button.className = 'btn btn-sm btn-outline-secondary';
+            button.textContent = suggestion;
+            button.onclick = () => this.sendQuickPrompt(suggestion);
+            quickPrompts.appendChild(button);
+        });
+    }
+
+    getCurrentCodeContext() {
+        console.log('🔍 Attempting to get code context...');
+        
+        // Try to get current code from the editor
+        // First try to get it from the onboarding instance
+        if (this.onboarding && this.onboarding.editor && typeof this.onboarding.editor.getValue === 'function') {
+            console.log('✅ Found editor in onboarding instance');
+            const code = this.onboarding.editor.getValue();
+            console.log('📝 Code length:', code.length, 'characters');
+            return code.trim() !== '' ? code : null;
+        }
+        
+        // Fallback to global window.editor
+        if (window.editor && typeof window.editor.getValue === 'function') {
+            console.log('✅ Found global window.editor');
+            const code = window.editor.getValue();
+            console.log('📝 Code length:', code.length, 'characters');
+            return code.trim() !== '' ? code : null;
+        }
+        
+        // Last resort: try to find editor in the global company onboarding instance
+        if (window.companyOnboarding && window.companyOnboarding.editor && typeof window.companyOnboarding.editor.getValue === 'function') {
+            console.log('✅ Found editor in global companyOnboarding');
+            const code = window.companyOnboarding.editor.getValue();
+            console.log('📝 Code length:', code.length, 'characters');
+            return code.trim() !== '' ? code : null;
+        }
+        
+        console.log('❌ No editor found');
+        console.log('Debug info:', {
+            'this.onboarding': !!this.onboarding,
+            'this.onboarding.editor': !!(this.onboarding && this.onboarding.editor),
+            'window.editor': !!window.editor,
+            'window.companyOnboarding': !!window.companyOnboarding,
+            'window.companyOnboarding.editor': !!(window.companyOnboarding && window.companyOnboarding.editor)
+        });
+        
+        return null;
+    }
+
+    formatMessageContent(content) {
+        // Basic markdown-like formatting for AI responses
+        let formatted = this.escapeHtml(content);
+        
+        // Format Go code blocks (using same style as rest of app)
+        formatted = formatted.replace(/```go\n([\s\S]*?)\n```/g, (match, code) => {
+            return `<pre class="bg-light p-3 rounded"><code class="language-go">${code.trim()}</code></pre>`;
+        });
+        
+        // Format generic code blocks  
+        formatted = formatted.replace(/```([a-zA-Z]*)\n([\s\S]*?)\n```/g, (match, lang, code) => {
+            const language = lang || 'text';
+            return `<pre class="bg-light p-3 rounded"><code class="language-${language}">${code.trim()}</code></pre>`;
+        });
+        
+        // Format code blocks without language specifier
+        formatted = formatted.replace(/```([\s\S]*?)```/g, (match, code) => {
+            return `<pre class="bg-light p-3 rounded"><code>${code.trim()}</code></pre>`;
+        });
+        
+        // Format inline code (match app style)
+        formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-light px-2 py-1 rounded">$1</code>');
+        
+        // Format bold text
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Format italic text
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Format line breaks (but not inside code blocks)
+        formatted = formatted.replace(/\n(?![^<]*<\/(?:pre|code)>)/g, '<br>');
+        
+        return formatted;
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    addCodeContextIndicator() {
+        const chatMessages = document.getElementById('chat-messages');
+        if (!chatMessages) return;
+
+        // Add a small indicator that code context is being shared
+        const indicatorDiv = document.createElement('div');
+        indicatorDiv.className = 'text-center my-2';
+        indicatorDiv.innerHTML = `
+            <small class="text-muted">
+                <i class="bi bi-code-square me-1"></i>
+                <em>Sharing your current code with AI Mentor...</em>
+            </small>
+        `;
+        
+        chatMessages.appendChild(indicatorDiv);
+        
+        // Remove the indicator after 2 seconds
+        setTimeout(() => {
+            if (indicatorDiv.parentNode) {
+                indicatorDiv.remove();
+            }
+        }, 2000);
+        
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    saveChatHistory() {
+        try {
+            const historyData = {
+                conversationHistory: this.conversationHistory,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem(this.storageKey, JSON.stringify(historyData));
+        } catch (error) {
+            console.warn('Failed to save chat history:', error);
+        }
+    }
+
+    loadChatHistory() {
+        try {
+            const saved = localStorage.getItem(this.storageKey);
+            if (saved) {
+                const historyData = JSON.parse(saved);
+                this.conversationHistory = historyData.conversationHistory || [];
+                
+                // Restore chat messages from conversation history
+                if (this.conversationHistory.length > 0) {
+                    const chatMessages = document.getElementById('chat-messages');
+                    if (chatMessages) {
+                        // Clear existing messages except welcome message
+                        const welcomeMessage = chatMessages.querySelector('.chat-message.ai');
+                        chatMessages.innerHTML = '';
+                        if (welcomeMessage) {
+                            chatMessages.appendChild(welcomeMessage);
+                        }
+                        
+                        // Recreate messages from conversation history
+                        this.conversationHistory.forEach(msg => {
+                            this.addMessageToChat(msg.role, msg.content, false); // false = don't save again
+                        });
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to load chat history:', error);
+            this.conversationHistory = [];
+        }
+    }
+
+    clearChatHistoryWithConfirmation() {
+        const messageCount = this.conversationHistory.length;
+        if (messageCount === 0) {
+            this.showTemporaryMessage('Chat is already empty', 'info');
+            return;
+        }
+        
+        const confirmMessage = `Are you sure you want to clear your chat history? This will delete ${Math.floor(messageCount/2)} conversation turns and cannot be undone.`;
+            
+        if (confirm(confirmMessage)) {
+            this.clearChatHistory();
+            this.showTemporaryMessage('Chat history cleared', 'success');
+        }
+    }
+
+    clearChatHistory() {
+        // Clear localStorage
+        localStorage.removeItem(this.storageKey);
+        
+        // Clear in-memory history
+        this.conversationHistory = [];
+        
+        // Clear chat messages UI
+        this.clearChat();
+    }
+
+    showTemporaryMessage(message, type = 'info') {
+        const chatMessages = document.getElementById('chat-messages');
+        if (!chatMessages) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'text-center my-2';
+        messageDiv.innerHTML = `
+            <small class="text-${type === 'success' ? 'success' : 'info'}">
+                <i class="bi bi-${type === 'success' ? 'check-circle' : 'info-circle'} me-1"></i>
+                ${message}
+            </small>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 3000);
+    }
+
+    clearChat() {
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            // Keep only the welcome message
+            const welcomeMessage = chatMessages.querySelector('.chat-message.ai');
+            chatMessages.innerHTML = '';
+            if (welcomeMessage) {
+                chatMessages.appendChild(welcomeMessage);
+            }
+        }
+        this.conversationHistory = [];
+    }
+}
+
+// Global functions for compatibility
+function sendChatMessage() {
+    if (window.companyOnboarding && window.companyOnboarding.aiChat) {
+        window.companyOnboarding.aiChat.sendChatMessage();
+    }
+}
+
+function sendQuickPrompt(prompt) {
+    if (window.companyOnboarding && window.companyOnboarding.aiChat) {
+        window.companyOnboarding.aiChat.sendQuickPrompt(prompt);
+    }
+}
+
+function openAIMentorChat() {
+    // Switch to AI mentor tab and enable chat mode
+    const aiTab = document.getElementById('ai-tab');
+    const chatModeRadio = document.getElementById('chat-mode');
+    
+    if (aiTab) {
+        aiTab.click();
+    }
+    
+    setTimeout(() => {
+        if (chatModeRadio) {
+            chatModeRadio.checked = true;
+            chatModeRadio.dispatchEvent(new Event('change'));
+        }
+    }, 100);
+}
+
+function clearChatHistory() {
+    if (window.companyOnboarding && window.companyOnboarding.aiChat) {
+        window.companyOnboarding.aiChat.clearChatHistoryWithConfirmation();
+    }
+}
+
+// Debug function to clear corrupted localStorage data
+function debugClearChatStorage() {
+    localStorage.removeItem('ai-mentor-chat-history');
+    console.log('Chat storage cleared. Please refresh the page.');
+}
+
+// Test function for code formatting (can be removed in production)
+function testCodeFormatting() {
+    if (window.companyOnboarding && window.companyOnboarding.aiChat) {
+        const testCode = `func ReverseString(s string) string {
+    runes := []rune(s)
+    for i, j := 0, len(runes) - 1; i < j; i, j = i + 1, j - 1 {
+        runes[i], runes[j] = runes[j], runes[i]
+    }
+    return string(runes)
+}`;
+        
+        const testMessage = `Here's an example function:
+
+\`\`\`go
+${testCode}
+\`\`\`
+
+This function reverses a string by converting it to runes.`;
+        
+        // Test the actual message addition to see highlight.js integration
+        window.companyOnboarding.aiChat.addMessageToChat('assistant', testMessage);
+        console.log('Added test message with code formatting to chat');
+        return true;
+    }
+    return null;
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     window.companyOnboarding = new CompanyOnboarding();
+    
+    // Initialize AI chat when onboarding is ready
+    setTimeout(() => {
+        if (window.companyOnboarding) {
+            window.companyOnboarding.aiChat = new AIMentorChat(window.companyOnboarding);
+        }
+    }, 100);
 });

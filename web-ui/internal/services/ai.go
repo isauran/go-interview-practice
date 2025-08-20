@@ -341,6 +341,58 @@ func (ai *AIService) GetCodeHint(code string, challenge *models.Challenge, hintL
 	return ai.parseHint(response), nil
 }
 
+// ChatMessage represents a single chat message
+type ChatMessage struct {
+	Role      string `json:"role"`      // "user" or "assistant"
+	Content   string `json:"content"`   // The message content
+	Timestamp string `json:"timestamp"` // ISO timestamp
+}
+
+// ChatResponse represents the response from AI chat
+type ChatResponse struct {
+	Message     string   `json:"message"`     // The AI's response
+	Success     bool     `json:"success"`     // Whether the request was successful
+	Error       string   `json:"error"`       // Error message if any
+	Timestamp   string   `json:"timestamp"`   // ISO timestamp
+	Context     string   `json:"context"`     // Optional context about the response
+	Suggestions []string `json:"suggestions"` // Optional follow-up suggestions
+}
+
+// ChatWithMentor handles conversational chat with the AI mentor
+func (ai *AIService) ChatWithMentor(userMessage string, challenge *models.Challenge, conversationHistory []ChatMessage, codeContext string) (*ChatResponse, error) {
+	if ai.config.APIKey == "" {
+		return &ChatResponse{
+			Message:   "⚠️ AI chat requires an API key. Get your free key at: https://makersuite.google.com/app/apikey",
+			Success:   false,
+			Error:     "API key not configured",
+			Timestamp: getCurrentTimestamp(),
+		}, nil
+	}
+
+	prompt := ai.buildChatPrompt(userMessage, challenge, conversationHistory, codeContext)
+
+	response, err := ai.callLLMWithOpts(prompt, false /* expectJSON */)
+	if err != nil {
+		return &ChatResponse{
+			Message:   "❌ I'm having trouble connecting right now. Please try again in a moment.",
+			Success:   false,
+			Error:     err.Error(),
+			Timestamp: getCurrentTimestamp(),
+		}, nil
+	}
+
+	// Parse the response and potentially extract suggestions
+	parsedResponse := ai.parseChatResponse(response)
+
+	return &ChatResponse{
+		Message:     parsedResponse,
+		Success:     true,
+		Timestamp:   getCurrentTimestamp(),
+		Context:     getContextDescription(challenge),
+		Suggestions: ai.generateFollowUpSuggestions(userMessage, parsedResponse, challenge),
+	}, nil
+}
+
 // BuildCodeReviewPrompt exposes the prompt builder for debugging
 func (ai *AIService) BuildCodeReviewPrompt(code string, challenge *models.Challenge, context string) string {
 	return ai.buildCodeReviewPrompt(code, challenge, context)
@@ -790,4 +842,137 @@ func (ai *AIService) parseHint(response string) string {
 		return "Consider the problem step by step. What's the core requirement here?"
 	}
 	return hint
+}
+
+// buildChatPrompt creates the prompt for chat conversations
+func (ai *AIService) buildChatPrompt(userMessage string, challenge *models.Challenge, conversationHistory []ChatMessage, codeContext string) string {
+	challengeContext := ""
+	if challenge != nil {
+		challengeContext = fmt.Sprintf("Current Challenge: %s", challenge.Title)
+	}
+
+	codeContextStr := ""
+	hasCode := false
+	if codeContext != "" && strings.TrimSpace(codeContext) != "" {
+		codeContextStr = fmt.Sprintf("\nUser's Current Code:\n```go\n%s\n```", codeContext)
+		hasCode = true
+	}
+
+	historyStr := ""
+	if len(conversationHistory) > 0 {
+		historyStr = "\nConversation History:\n"
+		// Only include last 5 messages to avoid token limits
+		start := 0
+		if len(conversationHistory) > 5 {
+			start = len(conversationHistory) - 5
+		}
+		for _, msg := range conversationHistory[start:] {
+			role := "User"
+			if msg.Role == "assistant" {
+				role = "Mentor"
+			}
+			historyStr += fmt.Sprintf("%s: %s\n", role, msg.Content)
+		}
+	}
+
+	codeAwarenessInstructions := ""
+	if hasCode {
+		codeAwarenessInstructions = `
+- I can see the user's current code above, so refer to it directly when relevant
+- Point out specific parts of their code when giving feedback
+- Suggest improvements to their existing code rather than asking them to paste it`
+	} else {
+		codeAwarenessInstructions = `
+- The user hasn't written any code yet, or I can't see their current code
+- If they ask about their code, let them know I can automatically see their code in the editor, but if they prefer, they can paste it here`
+	}
+
+	return fmt.Sprintf(`You are a friendly and knowledgeable Go programming mentor. You're helping a student learn Go through hands-on coding challenges.
+
+CONTEXT:
+%s%s%s
+
+STUDENT'S QUESTION: %s
+
+INSTRUCTIONS:
+- Be encouraging and supportive
+- Give clear, practical explanations with examples when helpful
+- If discussing code, provide Go code snippets when relevant
+- When showing code examples, use triple backticks with "go" directly after (not on separate line)
+- Keep responses concise but thorough (aim for 2-3 paragraphs)
+- If the student is struggling, break down concepts into smaller steps
+- Relate answers back to the current challenge when possible
+- Use emojis sparingly and appropriately
+- If asked about non-Go/programming topics, gently redirect to programming%s
+
+Respond naturally as a helpful mentor would in a conversation.`, challengeContext, codeContextStr, historyStr, userMessage, codeAwarenessInstructions)
+}
+
+// parseChatResponse cleans up and formats the chat response
+func (ai *AIService) parseChatResponse(response string) string {
+	// Clean up the response
+	cleaned := strings.TrimSpace(response)
+
+	// Remove any markdown code blocks markers if they appear at the start/end
+	cleaned = strings.TrimPrefix(cleaned, "```")
+	cleaned = strings.TrimSuffix(cleaned, "```")
+	cleaned = strings.TrimSpace(cleaned)
+
+	if cleaned == "" {
+		return "I'm here to help! Could you rephrase your question?"
+	}
+
+	return cleaned
+}
+
+// generateFollowUpSuggestions creates contextual follow-up suggestions
+func (ai *AIService) generateFollowUpSuggestions(userMessage, aiResponse string, challenge *models.Challenge) []string {
+	suggestions := []string{}
+
+	userLower := strings.ToLower(userMessage)
+
+	// Context-aware suggestions based on user's question
+	if strings.Contains(userLower, "explain") || strings.Contains(userLower, "what") {
+		suggestions = append(suggestions, "Can you show me an example?")
+		suggestions = append(suggestions, "How would I implement this?")
+	}
+
+	if strings.Contains(userLower, "error") || strings.Contains(userLower, "problem") {
+		suggestions = append(suggestions, "How can I debug this?")
+		suggestions = append(suggestions, "What's the best practice here?")
+	}
+
+	if strings.Contains(userLower, "optimize") || strings.Contains(userLower, "performance") {
+		suggestions = append(suggestions, "What's the time complexity?")
+		suggestions = append(suggestions, "Are there other approaches?")
+	}
+
+	// Default suggestions if no specific context
+	if len(suggestions) == 0 {
+		suggestions = []string{
+			"Can you explain this more?",
+			"Show me best practices",
+			"Help with the current challenge",
+		}
+	}
+
+	// Limit to 3 suggestions
+	if len(suggestions) > 3 {
+		suggestions = suggestions[:3]
+	}
+
+	return suggestions
+}
+
+// getCurrentTimestamp returns current time in ISO format
+func getCurrentTimestamp() string {
+	return time.Now().Format(time.RFC3339)
+}
+
+// getContextDescription provides a human-readable context description
+func getContextDescription(challenge *models.Challenge) string {
+	if challenge == nil {
+		return "General Go programming discussion"
+	}
+	return fmt.Sprintf("Working on: %s", challenge.Title)
 }
