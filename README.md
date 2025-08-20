@@ -2,18 +2,19 @@
 # Go Interview Practice
 
 <div align="center">
+  <img src="./images/logo.png" alt="Go Interview Practice Logo" width="200" style="margin-bottom: 20px;">
+  
+  [![GitHub Stars](https://img.shields.io/github/stars/RezaSi/go-interview-practice?style=for-the-badge&logo=github&color=yellow)](https://github.com/RezaSi/go-interview-practice/stargazers)
+  [![Go Version](https://img.shields.io/badge/Go-1.19+-00ADD8?style=for-the-badge&logo=go)](https://golang.org/)
+  [![Challenges](https://img.shields.io/badge/Challenges-30+-brightgreen?style=for-the-badge&logo=checkmarx)](https://github.com/RezaSi/go-interview-practice)
 
-[![GitHub Stars](https://img.shields.io/github/stars/RezaSi/go-interview-practice?style=for-the-badge&logo=github&color=yellow)](https://github.com/RezaSi/go-interview-practice/stargazers)
-[![Go Version](https://img.shields.io/badge/Go-1.19+-00ADD8?style=for-the-badge&logo=go)](https://golang.org/)
-[![Challenges](https://img.shields.io/badge/Challenges-30+-brightgreen?style=for-the-badge&logo=checkmarx)](https://github.com/RezaSi/go-interview-practice)
+  <a href="https://trendshift.io/repositories/14255" target="_blank">
+  <img src="https://trendshift.io/api/badge/repositories/14255" alt="RezaSi%2Fgo-interview-practice | Trendshift" style="width: 250px;" width="250"/>
+  </a>
 
-<a href="https://trendshift.io/repositories/14255" target="_blank">
-<img src="https://trendshift.io/api/badge/repositories/14255" alt="RezaSi%2Fgo-interview-practice | Trendshift" style="width: 250px;" width="250"/>
-</a>
-
-**⭐ Star the repo if it’s useful to you**
-<br/>
-<br/>
+  **⭐ Star the repo if it's useful to you**
+  <br/>
+  <br/>
 </div>
 
 
