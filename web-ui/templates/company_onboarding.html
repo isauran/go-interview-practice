@@ -404,6 +404,60 @@
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 0.9em;
 }
+
+/* Spinning animation for reset button */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Custom reset modal styling */
+.reset-modal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+
+.reset-modal .modal-header {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+}
+
+.reset-modal .modal-title {
+    font-weight: 600;
+}
+
+.reset-modal .btn-close {
+    filter: invert(1);
+}
+
+.reset-modal .code-preview {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.reset-modal .btn-reset-confirm {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.reset-modal .btn-reset-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
 </style>
 
 <!-- Original Onboarding Overview UI -->
@@ -1078,6 +1132,60 @@
         </div>
         <div class="toast-body" id="toast-message">
             Message content
+        </div>
+    </div>
+</div>
+
+<!-- Reset Confirmation Modal -->
+<div class="modal fade reset-modal" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Reset Code to Original Template
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <p class="mb-2"><strong>Are you sure you want to reset your code?</strong></p>
+                    <p class="text-muted small mb-3">This action will permanently delete all your changes and restore the original template.</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-danger mb-2">
+                        <i class="bi bi-trash me-1"></i>What will be lost:
+                    </h6>
+                    <ul class="list-unstyled small text-muted mb-0">
+                        <li><i class="bi bi-x-circle text-danger me-1"></i>All your current code changes</li>
+                        <li><i class="bi bi-x-circle text-danger me-1"></i>Auto-saved progress in browser</li>
+                        <li><i class="bi bi-x-circle text-danger me-1"></i>Any work since your last submission</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-success mb-2">
+                        <i class="bi bi-arrow-clockwise me-1"></i>What will be restored:
+                    </h6>
+                    <div class="code-preview p-2">
+                        <div class="small text-muted mb-1">Original template preview:</div>
+                        <pre id="template-preview" class="mb-0"></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger btn-reset-confirm" id="confirmResetBtn">
+                    <span id="confirm-reset-text">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Code
+                    </span>
+                    <span id="confirm-reset-spinner" class="d-none">
+                        <i class="bi bi-arrow-repeat spin me-1"></i>Resetting...
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 </div>

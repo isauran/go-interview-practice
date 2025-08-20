@@ -706,6 +706,9 @@ class CompanyOnboarding {
                 
                 console.log('Editor initialized successfully');
                 
+                // Initialize editor toolbar buttons
+                this.initializeEditorButtons();
+                
                 // Show initial save status if content was loaded
                 if (savedContent) {
                     this.showSaveIndicator('saved');
@@ -2357,6 +2360,151 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
             console.error('Error loading editor content:', error);
             return null;
         }
+    }
+
+    initializeEditorButtons() {
+        // Initialize fullscreen button
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => {
+                this.toggleFullscreen();
+            });
+        }
+
+        // Initialize reset button
+        const resetBtn = document.getElementById('reset-editor-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.resetEditor();
+            });
+        }
+    }
+
+    toggleFullscreen() {
+        const editorWrapper = document.querySelector('.editor-wrapper');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const icon = fullscreenBtn.querySelector('i');
+        
+        if (!editorWrapper.classList.contains('editor-fullscreen')) {
+            // Enter fullscreen mode
+            editorWrapper.classList.add('editor-fullscreen');
+            icon.className = 'bi bi-fullscreen-exit';
+            fullscreenBtn.setAttribute('title', 'Exit fullscreen mode (ESC)');
+            
+            // Resize editor to fit fullscreen
+            setTimeout(() => {
+                if (this.editor) {
+                    this.editor.resize();
+                }
+            }, 100);
+            
+            // Add escape key listener
+            document.addEventListener('keydown', this.handleEscapeKey.bind(this));
+        } else {
+            // Exit fullscreen mode
+            this.exitFullscreen();
+        }
+    }
+
+    exitFullscreen() {
+        const editorWrapper = document.querySelector('.editor-wrapper');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const icon = fullscreenBtn.querySelector('i');
+        
+        editorWrapper.classList.remove('editor-fullscreen');
+        icon.className = 'bi bi-arrows-fullscreen';
+        fullscreenBtn.setAttribute('title', 'Enter fullscreen mode (ESC to exit)');
+        
+        // Resize editor back to normal
+        setTimeout(() => {
+            if (this.editor) {
+                this.editor.resize();
+            }
+        }, 100);
+        
+        // Remove escape key listener
+        document.removeEventListener('keydown', this.handleEscapeKey.bind(this));
+    }
+
+    handleEscapeKey(event) {
+        if (event.key === 'Escape') {
+            this.exitFullscreen();
+        }
+    }
+
+    resetEditor() {
+        if (!this.currentChallenge || !this.editor) {
+            this.showToast('Error', 'Editor not available', 'error');
+            return;
+        }
+
+        // Show template preview in modal
+        const template = this.currentChallenge.template || 
+            '// Write your solution here\npackage main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, World!")\n}';
+        
+        const templatePreview = document.getElementById('template-preview');
+        if (templatePreview) {
+            templatePreview.textContent = template;
+        }
+
+        // Show the modal
+        const resetModal = new bootstrap.Modal(document.getElementById('resetModal'));
+        resetModal.show();
+
+        // Set up the confirm button event (remove any existing listeners first)
+        const confirmBtn = document.getElementById('confirmResetBtn');
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        newConfirmBtn.addEventListener('click', () => {
+            this.performReset(resetModal, template);
+        });
+    }
+
+    performReset(modal, template) {
+        const confirmText = document.getElementById('confirm-reset-text');
+        const confirmSpinner = document.getElementById('confirm-reset-spinner');
+        const confirmBtn = document.getElementById('confirmResetBtn');
+        
+        // Show loading state
+        confirmText.classList.add('d-none');
+        confirmSpinner.classList.remove('d-none');
+        confirmBtn.disabled = true;
+        
+        // Simulate reset process with delay for better UX
+        setTimeout(() => {
+            // Clear saved code from localStorage
+            try {
+                const key = this.getStorageKey(`challenge_${this.currentChallenge.id}_code`);
+                localStorage.removeItem(key);
+            } catch (error) {
+                console.error('Error clearing saved code:', error);
+            }
+            
+            // Reset to template
+            this.editor.setValue(template);
+            this.editor.clearSelection();
+            
+            // Reset flags
+            this.userHasTyped = false;
+            this.pendingSave = false;
+            
+            // Hide save indicators
+            this.showSaveIndicator(null);
+            
+            // Hide modal
+            modal.hide();
+            
+            // Reset button states
+            confirmText.classList.remove('d-none');
+            confirmSpinner.classList.add('d-none');
+            confirmBtn.disabled = false;
+            
+            // Show success message
+            setTimeout(() => {
+                this.showToast('Success', 'Code successfully reset to original template', 'success');
+            }, 200);
+        }, 800); // Small delay for better UX feedback
     }
 
     showSaveIndicator(status) {
