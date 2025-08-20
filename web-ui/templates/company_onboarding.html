@@ -104,34 +104,6 @@
         padding: 0.4rem 0.8rem;
     }
     
-    /* Progress tracker responsive adjustments */
-    .progress-steps .step-item {
-        padding: 0.5rem 0;
-    }
-    
-    .step-indicator {
-        width: 35px;
-        height: 35px;
-        margin-right: 0.75rem;
-    }
-    
-    .step-title {
-        font-size: 0.85rem;
-    }
-    
-    .step-status {
-        font-size: 0.7rem;
-    }
-    
-    .achievement-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    .achievement-badge {
-        width: 35px;
-        height: 35px;
-    }
-    
     /* Chat interface responsive */
     .chat-messages {
         max-height: 250px;
@@ -165,115 +137,6 @@
 #sidebar-tabs .nav-link:hover:not(.active) {
     background: rgba(255,255,255,0.1) !important;
     color: rgba(255,255,255,0.9) !important;
-}
-
-/* Progress Tracker Styles */
-.progress-steps {
-    padding: 0;
-}
-
-.step-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #e9ecef;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.step-item:last-child {
-    border-bottom: none;
-}
-
-.step-item:hover {
-    background: rgba(102, 126, 234, 0.05);
-    border-radius: 8px;
-    margin: 0 -0.5rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-}
-
-.step-indicator {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    transition: all 0.3s ease;
-}
-
-.step-item.completed .step-indicator {
-    background: #28a745;
-    color: white;
-}
-
-.step-item.active .step-indicator {
-    background: #667eea;
-    color: white;
-}
-
-.step-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.step-title {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-}
-
-.step-status {
-    font-size: 0.75rem;
-    color: #6c757d;
-}
-
-.step-item.completed .step-status {
-    color: #28a745;
-}
-
-/* Achievement Badges */
-.achievement-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-}
-
-.achievement-badge {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6c757d;
-    transition: all 0.3s ease;
-    cursor: help;
-}
-
-.achievement-badge.earned {
-    background: linear-gradient(135deg, #ffd700, #ffed4e);
-    color: #8b7355;
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-}
-
-.achievement-badge:hover {
-    transform: scale(1.05);
-}
-
-/* Quick Actions */
-.quick-actions .btn {
-    transition: all 0.2s ease;
-}
-
-.quick-actions .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Chat Interface Styles */
@@ -458,107 +321,102 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
+
+/* Custom Tooltip Styling */
+.tooltip {
+    z-index: 10001 !important; /* Above editor toolbar */
+}
+
+.tooltip .tooltip-inner {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+}
+
+.tooltip .tooltip-arrow::before {
+    border-top-color: #ffffff !important;
+    border-bottom-color: #ffffff !important;
+    border-left-color: #ffffff !important;
+    border-right-color: #ffffff !important;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #ffffff !important;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: #ffffff !important;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: #ffffff !important;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: #ffffff !important;
+}
+
+/* Enhanced Editor Button Styling */
+#reset-editor-btn, #fullscreen-btn {
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#reset-editor-btn:hover, #fullscreen-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+}
+
+#reset-editor-btn:active, #fullscreen-btn:active {
+    transform: translateY(0);
+}
+
+#reset-editor-btn:disabled, #fullscreen-btn:disabled {
+    transform: none;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#reset-editor-btn::before, #fullscreen-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+#reset-editor-btn:hover::before, #fullscreen-btn:hover::before {
+    left: 100%;
+}
 </style>
 
 <!-- Original Onboarding Overview UI -->
 <div class="container-fluid" id="onboarding-overview">
     <div class="row">
-        <!-- Progress Tracker & Quick Actions Sidebar -->
+        <!-- Welcome Sidebar -->
         <div class="col-lg-3 col-md-4">
             <div class="card sticky-top" style="top: 100px;">
                 <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Your Progress</h5>
+                    <h5 class="mb-0"><i class="bi bi-star me-2"></i>Welcome</h5>
                 </div>
                 <div class="card-body">
-                    <!-- Overall Progress Circle -->
-                    <div class="text-center mb-4">
-                        <div class="position-relative d-inline-block">
-                            <svg width="100" height="100" class="progress-ring">
-                                <circle stroke="#e9ecef" stroke-width="8" fill="transparent" r="40" cx="50" cy="50"/>
-                                <circle stroke="#28a745" stroke-width="8" fill="transparent" r="40" cx="50" cy="50" 
-                                        stroke-dasharray="251" stroke-dashoffset="251" id="progress-circle"
-                                        style="transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.5s ease-in-out;"/>
-                            </svg>
-                            <div class="position-absolute top-50 start-50 translate-middle">
-                                <div class="fw-bold fs-5" id="progress-percentage">0%</div>
-                                <small class="text-muted">Complete</small>
-                    </div>
-                </div>
-                    </div>
-
-                    <!-- Progress Steps -->
-                    <div class="progress-steps mb-4">
-                        <div class="step-item" data-step="overview">
-                            <div class="step-indicator">
-                                <i class="bi bi-house"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Overview</div>
-                                <div class="step-status" id="overview-status">Ready to start</div>
-                            </div>
-                        </div>
-                        <div class="step-item" data-step="learn-basics">
-                            <div class="step-indicator">
-                                <i class="bi bi-code-square"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Learn Basics</div>
-                                <div class="step-status" id="basics-status">0/5 challenges</div>
-                            </div>
-                        </div>
-                        <div class="step-item" data-step="learn-packages">
-                            <div class="step-indicator">
-                                <i class="bi bi-box"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Learn Packages</div>
-                                <div class="step-status" id="packages-status">0/3 packages</div>
-                            </div>
-                        </div>
-                        <div class="step-item" data-step="completion">
-                            <div class="step-indicator">
-                                <i class="bi bi-trophy"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Completion</div>
-                                <div class="step-status" id="completion-status">Locked</div>
-                    </div>
-                </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="quick-actions">
-                        <h6 class="fw-semibold mb-3">Quick Actions</h6>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary btn-sm" onclick="startOnboardingSetup()">
-                                <i class="bi bi-play-circle me-2"></i>Start Journey
-                            </button>
-                            <button class="btn btn-outline-info btn-sm" onclick="showSection('overview')" id="back-to-overview">
-                                <i class="bi bi-arrow-left me-2"></i>Back to Overview
-                            </button>
-                            <button class="btn btn-outline-success btn-sm" onclick="openAIMentorChat()" id="open-mentor-chat" style="display: none;">
-                                <i class="bi bi-chat-dots me-2"></i>Chat with Mentor
+                    <div class="text-center">
+                        <i class="bi bi-person-workspace fs-1 text-primary mb-3"></i>
+                        <h6 class="fw-semibold">Ready to Start?</h6>
+                        <p class="text-muted small mb-3">Let's set up your personalized Go learning journey!</p>
+                        <button class="btn btn-primary btn-sm" onclick="startOnboardingSetup()">
+                            <i class="bi bi-play-circle me-2"></i>Begin Setup
                         </button>
-                    </div>
-                </div>
-
-                    <!-- Achievement Badges -->
-                    <div class="achievements mt-4" id="achievement-section" style="display: none;">
-                        <h6 class="fw-semibold mb-3">Achievements</h6>
-                        <div class="achievement-grid">
-                            <div class="achievement-badge" data-achievement="first-challenge" title="Completed first challenge">
-                                <i class="bi bi-star-fill"></i>
-                            </div>
-                            <div class="achievement-badge" data-achievement="speed-demon" title="Solved challenge in under 5 minutes">
-                                <i class="bi bi-lightning-fill"></i>
-                            </div>
-                            <div class="achievement-badge" data-achievement="perfectionist" title="Got 100% on code review">
-                                <i class="bi bi-gem"></i>
-                            </div>
-                            <div class="achievement-badge" data-achievement="package-master" title="Completed all package challenges">
-                                <i class="bi bi-award-fill"></i>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

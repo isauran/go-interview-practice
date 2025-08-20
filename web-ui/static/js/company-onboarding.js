@@ -1996,20 +1996,9 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
             progressText.textContent = progressPercent + '%';
         }
 
-        // Update step indicators
-        this.updateStepIndicators();
-        
         // Update individual section progress
         this.updateBasicsProgress();
         this.updatePackagesProgress();
-        
-        // Show achievements if user has made progress
-        if (progressPercent > 0) {
-            this.showAchievements();
-        }
-        
-        // Show/hide mentor chat button
-        this.updateQuickActions();
     }
 
     updateBasicsProgress() {
@@ -2125,113 +2114,6 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
         this.currentStep = section;
     }
 
-    updateStepIndicators() {
-        const steps = document.querySelectorAll('.step-item');
-        
-        steps.forEach(stepElement => {
-            const stepType = stepElement.dataset.step;
-            const indicator = stepElement.querySelector('.step-indicator');
-            const status = stepElement.querySelector('.step-status');
-            
-            if (!status) return; // Skip if new UI elements not present
-            
-            // Remove existing classes
-            stepElement.classList.remove('completed', 'active');
-            
-            switch(stepType) {
-                case 'overview':
-                    if (this.currentStep === 'overview') {
-                        stepElement.classList.add('active');
-                        status.textContent = 'Current step';
-                    } else {
-                        stepElement.classList.add('completed');
-                        status.textContent = 'Completed';
-                    }
-                    break;
-                    
-                case 'learn-basics':
-                    const basicProgress = this.getBasicChallengeProgress();
-                    status.textContent = `${basicProgress.completed}/${basicProgress.total} challenges`;
-                    if (basicProgress.completed === basicProgress.total && basicProgress.total > 0) {
-                        stepElement.classList.add('completed');
-                    } else if (this.currentStep === 'learn-basics') {
-                        stepElement.classList.add('active');
-                    }
-                    break;
-                    
-                case 'learn-packages':
-                    const packageProgress = this.getPackageProgress();
-                    status.textContent = `${packageProgress.completed}/${packageProgress.total} packages`;
-                    if (packageProgress.completed === packageProgress.total && packageProgress.total > 0) {
-                        stepElement.classList.add('completed');
-                    } else if (this.currentStep === 'learn-packages') {
-                        stepElement.classList.add('active');
-                    }
-                    break;
-                    
-                case 'completion':
-                    const isComplete = this.isOnboardingComplete();
-                    if (isComplete) {
-                        stepElement.classList.add('completed');
-                        status.textContent = 'Congratulations!';
-                    } else {
-                        status.textContent = 'Locked';
-                    }
-                    break;
-            }
-            
-            // Make step clickable if accessible
-            if (stepElement.classList.contains('completed') || stepElement.classList.contains('active')) {
-                stepElement.style.cursor = 'pointer';
-                stepElement.onclick = () => this.showSection(stepType);
-            } else {
-                stepElement.style.cursor = 'not-allowed';
-                stepElement.onclick = null;
-            }
-        });
-    }
-
-    showAchievements() {
-        const achievementSection = document.getElementById('achievement-section');
-        if (achievementSection) {
-            achievementSection.style.display = 'block';
-            this.updateAchievementBadges();
-        }
-    }
-
-    updateAchievementBadges() {
-        const badges = document.querySelectorAll('.achievement-badge');
-        
-        badges.forEach(badge => {
-            const achievement = badge.dataset.achievement;
-            const isEarned = this.checkAchievement(achievement);
-            
-            if (isEarned) {
-                badge.classList.add('earned');
-            } else {
-                badge.classList.remove('earned');
-            }
-        });
-    }
-
-    checkAchievement(achievement) {
-        switch(achievement) {
-            case 'first-challenge':
-                return this.getCompletedChallenges().length > 0;
-            case 'speed-demon':
-                // This would need to be tracked with timing data
-                return false;
-            case 'perfectionist':
-                // This would need to track AI review scores
-                return false;
-            case 'package-master':
-                const packageProgress = this.getPackageProgress();
-                return packageProgress.completed === packageProgress.total && packageProgress.total > 0;
-            default:
-                return false;
-        }
-    }
-
     getBasicChallengeProgress() {
         const total = this.selectedBasicChallenges.length;
         const completed = this.getCompletedChallenges().filter(id => 
@@ -2257,23 +2139,6 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
         return basicProgress.completed === basicProgress.total && 
                packageProgress.completed === packageProgress.total &&
                basicProgress.total > 0 && packageProgress.total > 0;
-    }
-
-    updateQuickActions() {
-        const backToOverviewBtn = document.getElementById('back-to-overview');
-        const openMentorChatBtn = document.getElementById('open-mentor-chat');
-        
-        if (backToOverviewBtn) {
-            // Show back button when not on overview
-            backToOverviewBtn.style.display = this.currentStep === 'overview' ? 'none' : 'block';
-        }
-        
-        if (openMentorChatBtn) {
-            // Show mentor chat button when in learning session or have progress
-            const hasProgress = this.getCompletedChallenges().length > 0;
-            const inLearningSession = document.getElementById('onboarding-session').style.display !== 'none';
-            openMentorChatBtn.style.display = (hasProgress || inLearningSession) ? 'block' : 'none';
-        }
     }
 
     showToast(title, message, type = 'info') {
@@ -2363,6 +2228,15 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
     }
 
     initializeEditorButtons() {
+        // Initialize tooltips for all buttons with data-bs-toggle="tooltip"
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                delay: { show: 300, hide: 100 },
+                trigger: 'hover focus'
+            });
+        });
+
         // Initialize fullscreen button
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         if (fullscreenBtn) {
@@ -2384,12 +2258,23 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
         const editorWrapper = document.querySelector('.editor-wrapper');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const icon = fullscreenBtn.querySelector('i');
+        const tooltip = bootstrap.Tooltip.getInstance(fullscreenBtn);
         
         if (!editorWrapper.classList.contains('editor-fullscreen')) {
             // Enter fullscreen mode
             editorWrapper.classList.add('editor-fullscreen');
             icon.className = 'bi bi-fullscreen-exit';
-            fullscreenBtn.setAttribute('title', 'Exit fullscreen mode (ESC)');
+            fullscreenBtn.setAttribute('data-bs-original-title', 'Exit fullscreen mode (ESC)');
+            
+            // Update tooltip
+            if (tooltip) {
+                tooltip.dispose();
+                new bootstrap.Tooltip(fullscreenBtn, { 
+                    title: 'Exit fullscreen mode (ESC)',
+                    delay: { show: 300, hide: 100 },
+                    trigger: 'hover focus'
+                });
+            }
             
             // Resize editor to fit fullscreen
             setTimeout(() => {
@@ -2410,10 +2295,21 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
         const editorWrapper = document.querySelector('.editor-wrapper');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const icon = fullscreenBtn.querySelector('i');
+        const tooltip = bootstrap.Tooltip.getInstance(fullscreenBtn);
         
         editorWrapper.classList.remove('editor-fullscreen');
         icon.className = 'bi bi-arrows-fullscreen';
-        fullscreenBtn.setAttribute('title', 'Enter fullscreen mode (ESC to exit)');
+        fullscreenBtn.setAttribute('data-bs-original-title', 'Enter fullscreen mode (ESC to exit)');
+        
+        // Update tooltip
+        if (tooltip) {
+            tooltip.dispose();
+            new bootstrap.Tooltip(fullscreenBtn, { 
+                title: 'Enter fullscreen mode (ESC to exit)',
+                delay: { show: 300, hide: 100 },
+                trigger: 'hover focus'
+            });
+        }
         
         // Resize editor back to normal
         setTimeout(() => {
