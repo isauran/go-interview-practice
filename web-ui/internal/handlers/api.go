@@ -817,26 +817,62 @@ func (h *APIHandler) calculateMainLeaderboard() []LeaderboardUser {
 	return leaderboard
 }
 
-// HandlePackageChallenge handles package challenge test and submit requests
+// HandlePackageChallenge handles both GET and POST requests for package challenges
 func (h *APIHandler) HandlePackageChallenge(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Parse URL path: /api/packages/{packageName}/{challengeId}/{action}
+	// Parse URL path
 	path := strings.TrimPrefix(r.URL.Path, "/api/packages/")
 	parts := strings.Split(path, "/")
 
-	if len(parts) != 3 {
-		http.Error(w, "Invalid URL format. Expected: /api/packages/{packageName}/{challengeId}/{action}", http.StatusBadRequest)
+	if r.Method == "GET" {
+		// GET /api/packages/{packageName}/{challengeId} - Fetch challenge details
+		if len(parts) != 2 {
+			http.Error(w, "Invalid URL format. Expected: /api/packages/{packageName}/{challengeId}", http.StatusBadRequest)
+			return
+		}
+		h.getPackageChallengeDetails(w, r, parts[0], parts[1])
 		return
 	}
 
-	packageName := parts[0]
-	challengeId := parts[1]
-	action := parts[2] // "test" or "submit"
+	if r.Method == "POST" {
+		// POST /api/packages/{packageName}/{challengeId}/{action} - Test or submit
+		if len(parts) != 3 {
+			http.Error(w, "Invalid URL format. Expected: /api/packages/{packageName}/{challengeId}/{action}", http.StatusBadRequest)
+			return
+		}
+		h.handlePackageChallengeAction(w, r, parts[0], parts[1], parts[2])
+		return
+	}
 
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+}
+
+func (h *APIHandler) getPackageChallengeDetails(w http.ResponseWriter, r *http.Request, packageName, challengeId string) {
+	// Get package data
+	pkg, err := h.packageService.GetPackage(packageName)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Package not found: %v", err), http.StatusNotFound)
+		return
+	}
+
+	// Get challenge data
+	challenge, err := h.packageService.GetPackageChallenge(packageName, challengeId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Challenge not found: %v", err), http.StatusNotFound)
+		return
+	}
+
+	// Format response
+	response := map[string]interface{}{
+		"success":   true,
+		"challenge": challenge,
+		"package":   pkg,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *APIHandler) handlePackageChallengeAction(w http.ResponseWriter, r *http.Request, packageName, challengeId, action string) {
 	// Validate action
 	if action != "test" && action != "submit" {
 		http.Error(w, "Invalid action. Must be 'test' or 'submit'", http.StatusBadRequest)
@@ -1135,6 +1171,7 @@ func (h *APIHandler) AICodeHint(w http.ResponseWriter, r *http.Request) {
 		ChallengeID int    `json:"challengeId"`
 		Code        string `json:"code"`
 		HintLevel   int    `json:"hintLevel"`
+		Context     string `json:"context"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -1154,7 +1191,7 @@ func (h *APIHandler) AICodeHint(w http.ResponseWriter, r *http.Request) {
 		request.HintLevel = 1
 	}
 
-	hint, err := h.aiService.GetCodeHint(request.Code, challenge, request.HintLevel)
+	hint, err := h.aiService.GetCodeHint(request.Code, challenge, request.HintLevel, request.Context)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("AI hint failed: %v", err), http.StatusInternalServerError)
 		return

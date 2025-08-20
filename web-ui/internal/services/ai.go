@@ -326,12 +326,12 @@ func (ai *AIService) GetInterviewerQuestions(code string, challenge *models.Chal
 }
 
 // GetCodeHint provides context-aware hints
-func (ai *AIService) GetCodeHint(code string, challenge *models.Challenge, hintLevel int) (string, error) {
+func (ai *AIService) GetCodeHint(code string, challenge *models.Challenge, hintLevel int, context string) (string, error) {
 	if ai.config.APIKey == "" {
 		return "⚠️ AI features require an API key. Get your free key at: https://makersuite.google.com/app/apikey", nil
 	}
 
-	prompt := ai.buildHintPrompt(code, challenge, hintLevel)
+	prompt := ai.buildHintPrompt(code, challenge, hintLevel, context)
 
 	response, err := ai.callLLMWithOpts(prompt, false /* expectJSON */)
 	if err != nil {
@@ -414,7 +414,7 @@ Generate 3-5 follow-up questions that probe: deeper understanding, edge cases, o
 }
 
 // buildHintPrompt creates the prompt for generating hints
-func (ai *AIService) buildHintPrompt(code string, challenge *models.Challenge, hintLevel int) string {
+func (ai *AIService) buildHintPrompt(code string, challenge *models.Challenge, hintLevel int, context string) string {
 	hintTypes := map[int]string{
 		1: "a subtle nudge in the right direction",
 		2: "a more direct hint about the approach",
@@ -422,15 +422,23 @@ func (ai *AIService) buildHintPrompt(code string, challenge *models.Challenge, h
 		4: "a detailed explanation with partial code example",
 	}
 
+	// Use context if provided, otherwise fall back to challenge title
+	challengeInfo := challenge.Title
+	if context != "" {
+		challengeInfo = context
+	}
+
 	return fmt.Sprintf(`You are a helpful coding mentor. Return only the hint text as plain text. No JSON, no code fences.
 
-CHALLENGE: %s
+CHALLENGE CONTEXT: %s
 CURRENT CODE:
 %s
 
 Provide %s (level %d/4). Be encouraging and educational, not just giving the answer.
 
-Return only the hint text.`, challenge.Title, code, hintTypes[hintLevel], hintLevel)
+Important: Use the CHALLENGE CONTEXT above to understand what specific challenge the student is working on. If it mentions a specific framework (like Gin, GORM, Cobra), provide hints specific to that framework.
+
+Return only the hint text.`, challengeInfo, code, hintTypes[hintLevel], hintLevel)
 }
 
 // callLLM makes a request to the configured LLM provider

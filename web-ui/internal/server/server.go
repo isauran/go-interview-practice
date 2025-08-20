@@ -94,6 +94,10 @@ func (s *Server) SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/api/ai/code-hint", apiHandler.AICodeHint)
 	mux.HandleFunc("/api/ai/debug", apiHandler.AIDebugResponse)
 
+	// Company onboarding API routes
+	mux.HandleFunc("/api/onboarding/challenges", apiHandler.GetAllChallenges)
+	mux.HandleFunc("/api/onboarding/progress", apiHandler.RefreshUserAttempts)
+
 	// GitHub webhook route
 	mux.HandleFunc("/webhook/github", apiHandler.GitHubWebhookHandler)
 
@@ -140,6 +144,7 @@ func (s *Server) SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/", webHandler.HomePage)
 	mux.HandleFunc("/challenge/", webHandler.ChallengePage)
 	mux.HandleFunc("/interview", webHandler.InterviewPage)
+	mux.HandleFunc("/company-onboarding", webHandler.CompanyOnboardingPage)
 	mux.HandleFunc("/scoreboard", webHandler.ScoreboardPage)
 	mux.HandleFunc("/scoreboard/", webHandler.ScoreChallengeHandler)
 	mux.HandleFunc("/packages/", func(w http.ResponseWriter, r *http.Request) {

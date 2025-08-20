@@ -651,7 +651,7 @@ func (h *WebHandler) countPackageChallengeSubmissions(packageName, challengeID s
 func (h *WebHandler) createPackageLeaderboard(packageName string, challenges []*models.PackageChallenge) []models.PackageScoreboardEntry {
 	var leaderboard []models.PackageScoreboardEntry
 	userStats := make(map[string]*userPackageStats)
-	
+
 	// Load sponsors for package leaderboard (reuse from API handler)
 	// Create a temporary API handler instance to access LoadSponsors
 	tempHandler := &APIHandler{}
@@ -737,6 +737,49 @@ func (h *WebHandler) createPackageLeaderboard(packageName string, challenges []*
 	})
 
 	return leaderboard
+}
+
+// CompanyOnboardingPage renders the company onboarding page
+func (h *WebHandler) CompanyOnboardingPage(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.New("").Funcs(utils.GetTemplateFuncs()).ParseFS(h.content, "templates/base.html", "templates/company_onboarding.html")
+	if err != nil {
+		log.Printf("Template error: %v", err)
+		http.Error(w, "Failed to parse template: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Get username from cookie if available
+	username := h.getUsernameFromCookie(r)
+
+	// If no username from cookie, try to get it from Git config
+	if username == "" {
+		gitInfo := utils.GetGitUsername()
+		if gitInfo.Username != "" {
+			username = gitInfo.Username
+			// Set the cookie for future requests
+			h.setUsernameCookie(w, username)
+		}
+	}
+
+	// Get user progress for onboarding
+	var userAttempt *models.UserAttemptedChallenges
+	if username != "" {
+		userAttempt = h.userService.GetUserAttempts(username, h.challengeService.GetChallenges())
+	}
+
+	data := struct {
+		Username     string
+		UserAttempts *models.UserAttemptedChallenges
+	}{
+		Username:     username,
+		UserAttempts: userAttempt,
+	}
+
+	err = tmpl.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		log.Printf("Template execution error: %v", err)
+		// Don't call http.Error here since headers may already be sent during template execution
+	}
 }
 
 // userPackageStats helper struct for collecting user statistics

@@ -1,0 +1,687 @@
+{{define "content"}}
+<style>
+.editor-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    background: white !important;
+    padding: 20px !important;
+}
+
+.editor-fullscreen .editor-container {
+    height: calc(100vh - 80px) !important;
+}
+
+.editor-toolbar {
+    transition: all 0.2s ease;
+}
+
+.editor-toolbar:hover {
+    background: rgba(255,255,255,1) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.editor-status-bar {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 11px;
+    transition: all 0.2s ease;
+}
+
+.feature-highlight {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.onboarding-section {
+    min-height: 600px;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.challenge-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.challenge-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.challenge-card.completed {
+    border-left: 4px solid #28a745;
+    background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+}
+
+.challenge-card.in-progress {
+    border-left: 4px solid #ffc107;
+    background: linear-gradient(135deg, #fff8e1, #fffaeb);
+}
+
+.challenge-card.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.challenge-card.locked:hover {
+    transform: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .col-lg-3.col-md-4 {
+        margin-bottom: 2rem;
+    }
+    
+    .sticky-top {
+        position: relative !important;
+    }
+    
+    .feature-highlight {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* Fix AI Mentor tab active state styling */
+#sidebar-tabs .nav-link {
+    transition: all 0.2s ease-in-out;
+}
+
+#sidebar-tabs .nav-link.active {
+    background: rgba(255,255,255,0.2) !important;
+    color: white !important;
+}
+
+#sidebar-tabs .nav-link:not(.active) {
+    background: transparent !important;
+    color: rgba(255,255,255,0.7) !important;
+}
+
+#sidebar-tabs .nav-link:hover:not(.active) {
+    background: rgba(255,255,255,0.1) !important;
+    color: rgba(255,255,255,0.9) !important;
+}
+</style>
+
+<!-- Original Onboarding Overview UI -->
+<div class="container-fluid" id="onboarding-overview">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 col-md-4">
+            <div class="card sticky-top" style="top: 100px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-mortarboard me-2"></i>Onboarding Journey</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="onboarding-nav">
+                        <a href="#overview" class="list-group-item list-group-item-action active" data-step="overview">
+                            <i class="bi bi-house me-2"></i>Overview
+                            <span class="badge bg-success ms-auto" id="overview-status">Start</span>
+                        </a>
+                        <a href="#learn-basics" class="list-group-item list-group-item-action" data-step="learn-basics">
+                            <i class="bi bi-code-square me-2"></i>Learn Basics
+                            <span class="badge bg-secondary ms-auto" id="basics-progress">0/5</span>
+                        </a>
+                        <a href="#learn-packages" class="list-group-item list-group-item-action" data-step="learn-packages">
+                            <i class="bi bi-box me-2"></i>Learn Packages
+                            <span class="badge bg-secondary ms-auto" id="packages-progress">0/3</span>
+                        </a>
+                        <a href="#completion" class="list-group-item list-group-item-action" data-step="completion">
+                            <i class="bi bi-trophy me-2"></i>Completion
+                            <span class="badge bg-secondary ms-auto" id="completion-status">Locked</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 0%" id="overall-progress"></div>
+                    </div>
+                    <small class="text-muted">Overall Progress: <span id="progress-text">0%</span></small>
+                    
+                    <!-- Start Journey Button -->
+                    <div class="mt-3 d-grid">
+                        <button class="btn btn-primary" onclick="startOnboardingSetup()">
+                            <i class="bi bi-play-circle me-2"></i>Start Your Journey
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Overview Section -->
+            <div id="overview-section" class="onboarding-section">
+                <div class="hero-section mb-4">
+                    <div class="hero-content text-center">
+                        <h1 class="display-4 mb-3">🎓 Company Onboarding</h1>
+                        <p class="lead mb-4">Master Go programming with AI-powered mentorship designed for your company's needs</p>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <div class="feature-highlight">
+                                <i class="bi bi-robot fs-4 text-warning"></i>
+                                <span class="ms-2">AI Mentor</span>
+                            </div>
+                            <div class="feature-highlight">
+                                <i class="bi bi-graph-up fs-4 text-success"></i>
+                                <span class="ms-2">Progress Tracking</span>
+                            </div>
+                            <div class="feature-highlight">
+                                <i class="bi bi-people fs-4 text-info"></i>
+                                <span class="ms-2">Company-Specific</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-1-circle-fill fs-3 text-primary me-3"></i>
+                                    <h5 class="mb-0">Learn Go Basics</h5>
+                                </div>
+                                <p class="text-muted">Start with fundamental Go concepts through carefully selected challenges. Your AI mentor will guide you through each step.</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>5 Essential Challenges</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>AI Code Review</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Interactive Q&A</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-2-circle-fill fs-3 text-primary me-3"></i>
+                                    <h5 class="mb-0">Master Packages</h5>
+                                </div>
+                                <p class="text-muted">Dive into real-world Go packages that your company uses. Learn through practical, applicable challenges.</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Company-Relevant Packages</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Framework Expertise</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Best Practices</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Start Your Journey button moved to sidebar -->
+            </div>
+
+            <!-- Learn Basics Section -->
+            <div id="learn-basics-section" class="onboarding-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="bi bi-code-square me-2"></i>Learn Go Basics</h2>
+                    <button class="btn btn-outline-primary" onclick="showSection('overview')">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Overview
+                    </button>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Your AI Mentor is ready!</strong> Complete these essential Go challenges with personalized guidance and instant feedback.
+                </div>
+
+                <div class="row" id="basic-challenges">
+                    <!-- Basic challenges will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Learn Packages Section -->
+            <div id="learn-packages-section" class="onboarding-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="bi bi-box me-2"></i>Learn Packages</h2>
+                    <button class="btn btn-outline-primary" onclick="showSection('learn-basics')">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Basics
+                    </button>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Prerequisites:</strong> Complete at least 3 basic challenges before accessing package challenges.
+                </div>
+
+                <div class="row" id="package-challenges">
+                    <!-- Package challenges will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Completion Section -->
+            <div id="completion-section" class="onboarding-section" style="display: none;">
+                <div class="text-center">
+                    <div class="hero-section">
+                        <div class="hero-content">
+                            <h1 class="display-4 mb-3">🎉 Congratulations!</h1>
+                            <p class="lead mb-4">You've completed your Go onboarding journey</p>
+                            <div class="completion-stats mb-4">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="total-challenges">8</div>
+                                            <div class="stat-label">Challenges Completed</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="time-spent">--</div>
+                                            <div class="stat-label">Time Invested</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="mentor-interactions">--</div>
+                                            <div class="stat-label">AI Mentor Chats</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="next-steps">
+                                <h4>What's Next?</h4>
+                                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                    <a href="/scoreboard" class="btn btn-outline-primary">
+                                        <i class="bi bi-trophy me-2"></i>View Scoreboard
+                                    </a>
+                                    <a href="/interview" class="btn btn-outline-primary">
+                                        <i class="bi bi-robot me-2"></i>Practice Interviews
+                                    </a>
+                                    <a href="/" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle me-2"></i>More Challenges
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Learning Session (Interview + Challenge Combined Interface) -->
+<div id="onboarding-session" class="row" style="display:none;">
+    <div class="col-12">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0"><i class="bi bi-mortarboard me-2"></i>Active Learning Session</h5>
+                        <small class="opacity-75" id="session-meta"></small>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-dark fs-5 px-3 py-2 font-monospace" id="progress-indicator">Challenge 1 of 8</span>
+                        <div class="dropdown">
+                            <button class="btn btn-warning dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-pause-circle-fill me-1"></i>Session Menu
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><button class="dropdown-item" id="save-and-exit">
+                                    <i class="bi bi-save me-2 text-info"></i>Save & Exit
+                                </button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class="dropdown-item" id="reset-progress">
+                                    <i class="bi bi-arrow-clockwise me-2 text-warning"></i>Reset Progress
+                                </button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Left Side: Problem Description & AI Assistant (from Interview) -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-primary border-2">
+                            <div class="card-header bg-primary text-white p-0">
+                                <ul class="nav nav-tabs nav-fill border-0" id="sidebar-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active border-0 fw-semibold" id="problem-tab" data-bs-toggle="tab" data-bs-target="#problem-content" type="button" role="tab" style="background: rgba(255,255,255,0.2); color: white;">
+                                            <i class="bi bi-file-text me-1"></i>Problem
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link border-0 fw-semibold" id="ai-tab" data-bs-toggle="tab" data-bs-target="#ai-content" type="button" role="tab" style="color: rgba(255,255,255,0.7);">
+                                            <i class="bi bi-robot me-1"></i>AI Mentor
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="tab-content h-100" id="sidebar-tab-content">
+                                    <!-- Problem Description Tab -->
+                                    <div class="tab-pane fade show active h-100" id="problem-content" role="tabpanel">
+                                        <div class="p-3 h-100 d-flex flex-column">
+                                            <div class="mb-3 p-2 bg-light rounded">
+                                                <div class="small text-muted mb-1">Current Challenge:</div>
+                                                <div><span class="badge bg-secondary">#<span id="current-challenge-id">-</span></span> <span id="current-challenge-title" class="fw-semibold"></span></div>
+                                            </div>
+                                            <div class="flex-grow-1" style="overflow-y: auto; max-height: 550px;">
+                                                <div id="current-description" class="markdown-content" style="font-size: 0.9rem;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- AI Assistant Tab (from Interview) -->
+                                    <div class="tab-pane fade h-100" id="ai-content" role="tabpanel">
+                                        <div class="p-3 h-100 d-flex flex-column">
+                                            <div class="text-center mb-3">
+                                                <div class="d-inline-block p-3 bg-primary bg-opacity-10 rounded-circle mb-3">
+                                                    <i class="bi bi-robot fs-2 text-primary"></i>
+                                                </div>
+                                                <h6 class="text-primary mb-1">AI Mentor</h6>
+                                                <p class="small text-muted mb-0">Your learning companion</p>
+                                            </div>
+                                            
+                                            <!-- AI Action Buttons -->
+                                            <div class="d-grid gap-2">
+                                                <button type="button" class="btn btn-primary btn-sm" onclick="requestAIReview()">
+                                                    <i class="bi bi-search me-1"></i> Get AI Code Review
+                                                </button>
+                                                <button type="button" class="btn btn-info btn-sm" onclick="requestInterviewQuestions()">
+                                                    <i class="bi bi-chat-dots me-1"></i> Ask Mentor Questions
+                                                </button>
+                                                <div class="btn-group w-100" role="group">
+                                                    <button type="button" class="btn btn-warning btn-sm" onclick="requestHint(1)">
+                                                        💡 Hint Lv1
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="requestHint(2)">
+                                                        Lv2
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="requestHint(3)">
+                                                        Lv3
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="requestHint(4)">
+                                                        Lv4
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- AI Response Area -->
+                                            <div id="ai-response-area" class="mt-3" style="display: none;">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-header bg-primary text-white py-2">
+                                                        <h6 class="mb-0">
+                                                            <i class="bi bi-robot me-1"></i>
+                                                            <span id="ai-response-title">AI Feedback</span>
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body p-3" id="ai-response-content">
+                                                        <!-- AI responses will appear here -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mt-auto">
+                                                <div class="alert alert-success py-2 px-3 mb-0 small">
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    <strong>AI Ready!</strong> Click buttons above to get AI assistance.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Challenge Editor (from Challenge page) -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <ul class="nav nav-tabs card-header-tabs" id="editorTabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="solution-tab" data-bs-toggle="tab" href="#solution" role="tab">Solution</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="tests-tab" data-bs-toggle="tab" href="#tests" role="tab">Tests</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="results-tab" data-bs-toggle="tab" href="#results" role="tab">Results</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="learning-materials-tab" data-bs-toggle="tab" href="#learning-materials" role="tab">Learning</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <!-- Solution Tab -->
+                                    <div class="tab-pane fade show active" id="solution" role="tabpanel">
+                                        <div class="editor-wrapper position-relative">
+                                            <!-- Editor Toolbar -->
+                                            <div class="editor-toolbar position-absolute top-0 end-0 p-2 d-flex align-items-center gap-2" style="z-index: 10; background: rgba(255,255,255,0.95); border-radius: 0 0 0 8px; border-left: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6;">
+                                                <!-- Save Status -->
+                                                <span id="save-indicator" class="badge bg-success d-none">
+                                                    <i class="bi bi-check2"></i> Saved
+                                                </span>
+                                                <span id="saving-indicator" class="badge bg-warning d-none">
+                                                    <i class="bi bi-arrow-repeat"></i> Saving...
+                                                </span>
+
+                                                <!-- Fullscreen Button -->
+                                                <button class="btn btn-outline-primary btn-sm" id="fullscreen-btn" 
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" 
+                                                        title="Enter fullscreen mode (ESC to exit)">
+                                                    <i class="bi bi-arrows-fullscreen"></i>
+                                                </button>
+
+                                                <!-- Reset Button -->
+                                                <button class="btn btn-outline-primary btn-sm" id="reset-editor-btn" 
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" 
+                                                        title="Reset code to original template">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Editor Status Bar -->
+                                            <div class="editor-status-bar position-absolute bottom-0 end-0 px-2 py-1" style="z-index: 10; background: rgba(248,249,250,0.95); border-radius: 4px 0 0 0; border-left: 1px solid #dee2e6; border-top: 1px solid #dee2e6;">
+                                                <small class="text-muted" id="editor-position">
+                                                    <i class="bi bi-cursor-text me-1"></i>
+                                                    Ln <span id="line-number">1</span>, Col <span id="col-number">1</span>
+                                                </small>
+                                            </div>
+
+                                            <div id="editor" class="editor-container"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tests Tab -->
+                                    <div class="tab-pane fade" id="tests" role="tabpanel">
+                                        <div id="test-editor" class="editor-container"></div>
+                                    </div>
+
+                                    <!-- Results Tab -->
+                                    <div class="tab-pane fade" id="results" role="tabpanel">
+                                        <div id="test-results" class="p-3">
+                                            <div class="alert alert-info">Run your code to see test results.</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Learning Tab -->
+                                    <div class="tab-pane fade" id="learning-materials" role="tabpanel">
+                                        <div id="learning-content" class="p-3 markdown-content">
+                                            <!-- Learning materials will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex justify-content-between mt-3">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <div class="btn-group btn-group-sm me-2" role="group" aria-label="Navigate challenges">
+                                            <button type="button" id="prev-challenge" class="btn btn-outline-primary"><i class="bi bi-chevron-left"></i></button>
+                                            <div id="challenge-pager" class="btn-group btn-group-sm"></div>
+                                            <button type="button" id="next-challenge" class="btn btn-outline-primary"><i class="bi bi-chevron-right"></i></button>
+                                        </div>
+                                        <button class="btn btn-primary" id="run-button">
+                                            <span class="spinner-border spinner-border-sm d-none" id="run-spinner" role="status" aria-hidden="true"></span>
+                                            <span id="run-text"><i class="bi bi-play"></i> Run Tests</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <button class="btn btn-success" id="submit-button">
+                                        <span class="spinner-border spinner-border-sm d-none" id="submit-spinner" role="status" aria-hidden="true"></span>
+                                        <span id="submit-text">Submit Solution</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Setup Modal (Popup for selecting challenges and packages) -->
+<div class="modal fade" id="setupModal" tabindex="-1" aria-labelledby="setupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="setupModalLabel">
+                    <i class="bi bi-gear me-2"></i>Setup Your Learning Path
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Step 1: Select Basic Challenges -->
+                <div id="setup-step-1">
+                    <div class="mb-4">
+                        <h6 class="fw-semibold mb-3">
+                            <span class="badge rounded-pill bg-primary me-2">1</span>
+                            Select Basic Challenges
+                        </h6>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <input id="basic-search" class="form-control form-control-sm" placeholder="🔍 Search challenges..." />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="btn-group btn-group-sm w-100" role="group">
+                                    <button type="button" class="btn btn-outline-secondary active" data-filter="all">All</button>
+                                    <button type="button" class="btn btn-outline-success" data-filter="beginner">Beginner</button>
+                                    <button type="button" class="btn btn-outline-warning" data-filter="intermediate">Intermediate</button>
+                                    <button type="button" class="btn btn-outline-danger" data-filter="advanced">Advanced</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group" id="basic-challenges-list" style="max-height: 300px; overflow-y: auto;">
+                            <!-- Basic challenges will be populated -->
+                        </div>
+                        <div class="text-muted small mt-2">
+                            Selected: <span id="basic-selected-count">0</span> challenges
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Select Packages -->
+                <div id="setup-step-2" style="display: none;">
+                    <div class="mb-4">
+                        <h6 class="fw-semibold mb-3">
+                            <span class="badge rounded-pill bg-primary me-2">2</span>
+                            Select Packages Your Company Uses
+                        </h6>
+                        <div class="row g-3" id="packages-list">
+                            <div class="col-md-4">
+                                <div class="card package-card" data-package="gin">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-globe fs-2 text-primary mb-2"></i>
+                                        <h6 class="fw-semibold">Gin Web Framework</h6>
+                                        <p class="small text-muted mb-0">HTTP web framework</p>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="gin" id="modal-package-gin">
+                                            <label class="form-check-label" for="modal-package-gin">Select</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card package-card" data-package="gorm">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-database fs-2 text-success mb-2"></i>
+                                        <h6 class="fw-semibold">GORM ORM</h6>
+                                        <p class="small text-muted mb-0">Object-relational mapping</p>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="gorm" id="modal-package-gorm">
+                                            <label class="form-check-label" for="modal-package-gorm">Select</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card package-card" data-package="cobra">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-terminal fs-2 text-warning mb-2"></i>
+                                        <h6 class="fw-semibold">Cobra CLI</h6>
+                                        <p class="small text-muted mb-0">Command line applications</p>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="cobra" id="modal-package-cobra">
+                                            <label class="form-check-label" for="modal-package-cobra">Select</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-muted small mt-2">
+                            Selected: <span id="packages-selected-count">0</span> packages
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="setup-back-btn" class="btn btn-outline-secondary" style="display: none;">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </button>
+                <button type="button" id="setup-next-btn" class="btn btn-primary" disabled>
+                    Next <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+                <button type="button" id="setup-start-btn" class="btn btn-success" style="display: none;">
+                    <i class="bi bi-play-circle me-1"></i>Start Learning
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+    <div id="statusToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+            Message content
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<!-- Ace Editor is already loaded in base template -->
+<script src="/static/js/company-onboarding.js"></script>
+{{end}}
