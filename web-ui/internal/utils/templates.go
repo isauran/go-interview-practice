@@ -369,13 +369,13 @@ func GetTemplateFuncs() template.FuncMap {
 		"getCategoryGradient": func(category string) string {
 			switch strings.ToLower(category) {
 			case "web":
-				return "bg-gradient-primary"
+				return "bg-primary"
 			case "database":
-				return "bg-gradient-secondary"
+				return "bg-success"
 			case "cli":
-				return "bg-gradient-warning"
+				return "bg-dark"
 			default:
-				return "bg-gradient-info"
+				return "bg-info"
 			}
 		},
 		"isComingSoon": func(challengeInfo map[string]interface{}) bool {

@@ -97,6 +97,7 @@ func (s *Server) SetupRoutes() *http.ServeMux {
 
 	// Company onboarding API routes
 	mux.HandleFunc("/api/onboarding/challenges", apiHandler.GetAllChallenges)
+	mux.HandleFunc("/api/packages/info", apiHandler.GetPackagesInfo)
 	mux.HandleFunc("/api/onboarding/progress", apiHandler.RefreshUserAttempts)
 
 	// GitHub webhook route

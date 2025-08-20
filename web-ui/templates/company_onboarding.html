@@ -398,6 +398,208 @@
 #reset-editor-btn:hover::before, #fullscreen-btn:hover::before {
     left: 100%;
 }
+
+/* Package Selection Cards */
+.package-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.package-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.package-card .form-check-input:checked ~ .form-check-label {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.package-card:has(.form-check-input:checked) {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Enhanced package card header styling for better visibility */
+.package-card .card-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.package-card .card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
+    z-index: 1;
+}
+
+.package-card .card-header > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Ensure all text in package headers is white with good contrast */
+.package-card .card-header,
+.package-card .card-header h6,
+.package-card .card-header small,
+.package-card .card-header .opacity-75 {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* Package category specific improvements */
+.package-card .bg-primary {
+    background: linear-gradient(135deg, #0d6efd, #0056b3) !important;
+}
+
+.package-card .bg-success {
+    background: linear-gradient(135deg, #198754, #146c43) !important;
+}
+
+.package-card .bg-dark {
+    background: linear-gradient(135deg, #212529, #495057) !important;
+}
+
+.package-card .bg-info {
+    background: linear-gradient(135deg, #0dcaf0, #087990) !important;
+}
+
+/* Advanced Challenge Navigation Styles */
+.challenge-navigation {
+    width: 100%;
+}
+
+.nav-controls {
+    display: flex;
+    align-items: center;
+}
+
+.challenge-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+}
+
+.challenge-pill {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.challenge-pill:hover:not(:disabled) {
+    transform: scale(1.1);
+}
+
+.challenge-pill.completed {
+    background: #28a745;
+    color: white;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+}
+
+.challenge-pill.current {
+    background: #007bff;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+    animation: pulse-current 2s infinite;
+}
+
+.challenge-pill.available {
+    background: #f8f9fa;
+    color: #495057;
+    border: 2px solid #dee2e6;
+}
+
+.challenge-pill.available:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+}
+
+/* Removed locked state - all challenges are now available */
+
+/* Challenge Type Indicators */
+.challenge-pill.basic-challenge::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 2px;
+    background: #007bff;
+    border-radius: 2px;
+}
+
+.challenge-pill.package-challenge::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 2px;
+    background: #28a745;
+    border-radius: 2px;
+}
+
+/* Current challenge pulse animation */
+@keyframes pulse-current {
+    0% {
+        box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.6);
+    }
+    100% {
+        box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+    }
+}
+
+/* Responsive navigation */
+@media (max-width: 768px) {
+    .challenge-navigation .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .challenge-pills {
+        justify-content: center;
+    }
+    
+    .challenge-pill {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+}
+
+/* Dropdown improvements */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+}
+
+.dropdown-item.active {
+    background-color: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+/* Removed disabled state - all dropdown items are now clickable */
 </style>
 
 <!-- Original Onboarding Overview UI -->
@@ -712,8 +914,19 @@
                                                                     <i class="bi bi-robot me-2 text-primary"></i>
                                                                     <strong>AI Mentor</strong>
                                                                 </div>
-                                                                <p class="mb-2">Hi! I'm your AI mentor. I'm here to help you with Go programming concepts, explain challenges, review your code, and answer any questions you have about the current challenge or Go in general.</p>
-                                                <p class="mb-0"><strong>💡 Pro tip:</strong> I can automatically see your current code in the editor, so feel free to ask me about it directly! No need to copy-paste. How can I assist you today? 🚀</p>
+                                                                <p class="mb-2">👋 <strong>Welcome!</strong> I'm your AI programming mentor, here to help you master Go programming through this challenge.</p>
+                                                
+                                                <div class="mb-3">
+                                                    <h6 class="small fw-semibold text-primary mb-2">🎯 I can help you with:</h6>
+                                                    <ul class="small text-muted mb-0" style="line-height: 1.4;">
+                                                        <li>• <strong>Explain concepts</strong> - Go syntax, patterns, best practices</li>
+                                                        <li>• <strong>Review your code</strong> - Point out issues and improvements</li>
+                                                        <li>• <strong>Debug problems</strong> - Help fix errors and logic issues</li>
+                                                        <li>• <strong>Answer questions</strong> - About this challenge or Go in general</li>
+                                                    </ul>
+                                                </div>
+                                                
+                                                <p class="mb-0 small"><strong>💡 Smart feature:</strong> I can automatically see your current code in the editor - just ask questions directly! No copy-paste needed. Ready to learn? 🚀</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -920,45 +1133,40 @@
                             Select Packages Your Company Uses
                         </h6>
                         <div class="row g-3" id="packages-list">
-                            <div class="col-md-4">
-                                <div class="card package-card" data-package="gin">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-globe fs-2 text-primary mb-2"></i>
-                                        <h6 class="fw-semibold">Gin Web Framework</h6>
-                                        <p class="small text-muted mb-0">HTTP web framework</p>
-                                        <div class="form-check mt-2">
-                                            <input class="form-check-input" type="checkbox" value="gin" id="modal-package-gin">
-                                            <label class="form-check-label" for="modal-package-gin">Select</label>
+                            {{range .PackagesList}}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card package-card h-100 border-0 shadow-sm" data-package="{{.Name}}">
+                                    <div class="card-header {{getCategoryGradient .Category}} text-white border-0">
+                                        <div class="d-flex align-items-center">
+                                            <i class="{{getCategoryIcon .Category}} fs-4 me-2"></i>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-bold">{{.DisplayName}}</h6>
+                                                <small class="opacity-75">{{.Category}}</small>
                                         </div>
+                                            <div class="text-end">
+                                                <i class="bi bi-star-fill text-warning me-1"></i>
+                                                <small>{{formatStars .Stars}}</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="card package-card" data-package="gorm">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-database fs-2 text-success mb-2"></i>
-                                        <h6 class="fw-semibold">GORM ORM</h6>
-                                        <p class="small text-muted mb-0">Object-relational mapping</p>
-                                        <div class="form-check mt-2">
-                                            <input class="form-check-input" type="checkbox" value="gorm" id="modal-package-gorm">
-                                            <label class="form-check-label" for="modal-package-gorm">Select</label>
+                                    <div class="card-body d-flex flex-column">
+                                        <p class="text-muted small mb-2">{{.Description}}</p>
+                                        <div class="mb-2">
+                                            <span class="badge bg-primary">{{len .LearningPath}} challenges</span>
+                                            <span class="badge bg-secondary">{{.Difficulty}}</span>
                                         </div>
+                                        <div class="mt-auto">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="{{.Name}}" id="modal-package-{{.Name}}" onchange="window.companyOnboarding.updatePackageSelection()">
+                                                <label class="form-check-label fw-semibold" for="modal-package-{{.Name}}">
+                                                    Select Package
+                                                </label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="card package-card" data-package="cobra">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-terminal fs-2 text-warning mb-2"></i>
-                                        <h6 class="fw-semibold">Cobra CLI</h6>
-                                        <p class="small text-muted mb-0">Command line applications</p>
-                                        <div class="form-check mt-2">
-                                            <input class="form-check-input" type="checkbox" value="cobra" id="modal-package-cobra">
-                                            <label class="form-check-label" for="modal-package-cobra">Select</label>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                            {{end}}
                         </div>
                         <div class="text-muted small mt-2">
                             Selected: <span id="packages-selected-count">0</span> packages
@@ -990,6 +1198,58 @@
         </div>
         <div class="toast-body" id="toast-message">
             Message content
+        </div>
+    </div>
+</div>
+
+<!-- Clear Chat Confirmation Modal -->
+<div class="modal fade" id="clearChatModal" tabindex="-1" aria-labelledby="clearChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="clearChatModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Clear Chat History
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="bi bi-chat-left-text fs-1 text-warning"></i>
+                </div>
+                <div class="mb-3">
+                    <h6 class="fw-semibold mb-2" id="clear-chat-challenge-info">Clear conversation for this challenge?</h6>
+                    <p class="text-muted small mb-3">This will permanently delete your conversation history with the AI mentor for this specific challenge.</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-danger mb-2">
+                        <i class="bi bi-trash me-1"></i>What will be removed:
+                    </h6>
+                    <ul class="list-unstyled small text-muted mb-0">
+                        <li><i class="bi bi-x-circle text-danger me-1"></i><span id="conversation-count">All your conversations</span> with the AI mentor</li>
+                        <li><i class="bi bi-x-circle text-danger me-1"></i>Code explanations and feedback</li>
+                        <li><i class="bi bi-x-circle text-danger me-1"></i>Learning progress for this challenge only</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-info small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <strong>Note:</strong> Other challenges' conversations will remain untouched.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i>Keep Chat History
+                </button>
+                <button type="button" class="btn btn-warning" id="confirmClearChatBtn">
+                    <span id="clear-chat-text">
+                        <i class="bi bi-trash me-1"></i>Clear Chat History
+                    </span>
+                    <span id="clear-chat-spinner" class="d-none">
+                        <i class="bi bi-arrow-repeat spin me-1"></i>Clearing...
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 </div>

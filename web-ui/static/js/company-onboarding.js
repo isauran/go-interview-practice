@@ -12,6 +12,7 @@ class CompanyOnboarding {
         this.setupStep = 1;
         this.autoSaveTimer = null;
         this.lastSaveTime = 0;
+        this.packagesInfo = {};
         this.init();
     }
 
@@ -29,12 +30,15 @@ class CompanyOnboarding {
         return `${this.sessionId}_${key}`;
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
         this.loadChallenges();
         this.updateProgress();
         this.updateNavigation();
         this.checkExistingProgress();
+        
+        // Load packages info for dynamic challenge mapping
+        await this.loadPackagesInfo();
     }
 
     setupEventListeners() {
@@ -324,7 +328,24 @@ class CompanyOnboarding {
         const checkboxes = document.querySelectorAll('#packages-list input[type="checkbox"]:checked');
         this.selectedPackages = Array.from(checkboxes).map(cb => cb.value);
         
-        document.getElementById('packages-selected-count').textContent = this.selectedPackages.length;
+        // Calculate total challenges from selected packages
+        let totalPackageChallenges = 0;
+        this.selectedPackages.forEach(packageName => {
+            const packageInfo = this.packagesInfo[packageName];
+            if (packageInfo && packageInfo.learningPath) {
+                totalPackageChallenges += packageInfo.learningPath.length;
+            }
+        });
+        
+        // Update the display with package count and challenge count
+        const countElement = document.getElementById('packages-selected-count');
+        if (this.selectedPackages.length === 0) {
+            countElement.textContent = '0 packages';
+        } else {
+            countElement.innerHTML = `${this.selectedPackages.length} package${this.selectedPackages.length !== 1 ? 's' : ''} 
+                <span class="text-muted">(&bull; ${totalPackageChallenges} challenges)</span>`;
+        }
+        
         document.getElementById('setup-start-btn').style.display = this.selectedPackages.length > 0 ? 'inline-block' : 'none';
     }
 
@@ -362,10 +383,19 @@ class CompanyOnboarding {
     }
 
     prepareLearningPlan() {
+        // Calculate total package challenges dynamically
+        let totalPackageChallenges = 0;
+        this.selectedPackages.forEach(packageName => {
+            const packageInfo = this.packagesInfo[packageName];
+            if (packageInfo && packageInfo.learningPath) {
+                totalPackageChallenges += packageInfo.learningPath.length;
+            }
+        });
+
         this.learningPlan = {
             basicChallenges: this.selectedBasicChallenges,
             packages: this.selectedPackages,
-            totalChallenges: this.selectedBasicChallenges.length + (this.selectedPackages.length * 2)
+            totalChallenges: this.selectedBasicChallenges.length + totalPackageChallenges
         };
         
         this.progress.learningPlan = this.learningPlan;
@@ -377,10 +407,29 @@ class CompanyOnboarding {
             const challengeId = this.selectedBasicChallenges[this.currentChallengeIndex];
             await this.loadChallenge(challengeId);
         } else {
+            // Calculate which package and challenge within that package
             const packageIndex = this.currentChallengeIndex - this.selectedBasicChallenges.length;
-            const packageName = this.selectedPackages[Math.floor(packageIndex / 2)];
-            const challengeNumber = (packageIndex % 2) + 1;
+            let currentIndex = 0;
+            
+            for (const packageName of this.selectedPackages) {
+                const packageInfo = this.packagesInfo[packageName];
+                if (packageInfo && packageInfo.learningPath) {
+                    const packageChallengeCount = packageInfo.learningPath.length;
+                    
+                    if (currentIndex + packageChallengeCount > packageIndex) {
+                        // This is the package that contains our current challenge
+                        const challengeNumber = (packageIndex - currentIndex) + 1; // 1-based
             await this.loadPackageChallenge(packageName, challengeNumber);
+                        return;
+                    }
+                    
+                    currentIndex += packageChallengeCount;
+                }
+            }
+            
+            // If we get here, there's an error in the index calculation
+            console.error('Failed to find package challenge for index:', this.currentChallengeIndex);
+            this.showToast('Error', 'Failed to load package challenge', 'error');
         }
     }
 
@@ -403,44 +452,57 @@ class CompanyOnboarding {
             this.currentChallenge = challenge;
             this.displayChallenge();
             this.initializeEditor();
+            
+            // Update AI chat context for this challenge
+            if (this.aiChat) {
+                this.aiChat.updateChallengeContext();
+            }
         } catch (error) {
             console.error('Error loading challenge:', error);
             this.showToast('Error', `Failed to load challenge ${challengeId}`, 'error');
         }
     }
 
+    async loadPackagesInfo() {
+        try {
+            const response = await fetch('/api/packages/info');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch packages info: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            if (data.success) {
+                this.packagesInfo = data.packages;
+                console.log('Loaded packages info:', this.packagesInfo);
+            } else {
+                throw new Error('Failed to load packages info');
+            }
+        } catch (error) {
+            console.error('Error loading packages info:', error);
+            // Fallback to hard-coded mapping if API fails
+            this.packagesInfo = {
+                'gin': { learningPath: ['challenge-1-basic-routing', 'challenge-2-middleware', 'challenge-3-validation-errors', 'challenge-4-authentication'] },
+                'gorm': { learningPath: ['challenge-1-crud-operations', 'challenge-2-associations', 'challenge-3-migrations', 'challenge-4-advanced-queries', 'challenge-5-generics'] },
+                'cobra': { learningPath: ['challenge-1-basic-cli', 'challenge-2-flags-args', 'challenge-3-subcommands-persistence', 'challenge-4-advanced-features'] },
+                'fiber': { learningPath: ['challenge-1-basic-routing', 'challenge-2-middleware', 'challenge-3-validation-errors', 'challenge-4-authentication'] }
+            };
+        }
+    }
+
     async loadPackageChallenge(packageName, challengeNumber) {
         try {
-            // Get the proper challenge name based on package learning path
-            const challengeNameMap = {
-                'gin': [
-                    'challenge-1-basic-routing',
-                    'challenge-2-middleware', 
-                    'challenge-3-validation-errors',
-                    'challenge-4-authentication'
-                ],
-                'gorm': [
-                    'challenge-1-crud-operations',
-                    'challenge-2-associations',
-                    'challenge-3-migrations',
-                    'challenge-4-advanced-queries',
-                    'challenge-5-generics'
-                ],
-                'cobra': [
-                    'challenge-1-basic-cli',
-                    'challenge-2-flags-args',
-                    'challenge-3-subcommands-persistence',
-                    'challenge-4-advanced-features'
-                ],
-                'fiber': [
-                    'challenge-1-basic-routing',
-                    'challenge-2-middleware',
-                    'challenge-3-validation-errors',
-                    'challenge-4-authentication'
-                ]
-            };
+            // Load packages info if not already loaded
+            if (Object.keys(this.packagesInfo).length === 0) {
+                await this.loadPackagesInfo();
+            }
 
-            const challengeList = challengeNameMap[packageName] || [];
+            // Get the proper challenge name based on package learning path
+            const packageInfo = this.packagesInfo[packageName];
+            if (!packageInfo || !packageInfo.learningPath) {
+                throw new Error(`Package ${packageName} not found or has no learning path`);
+            }
+
+            const challengeList = packageInfo.learningPath;
             const challengeId = challengeList[challengeNumber - 1]; // challengeNumber is 1-based
             
             if (!challengeId) {
@@ -479,6 +541,11 @@ class CompanyOnboarding {
             
                 this.displayChallenge();
                 this.initializeEditor();
+            
+            // Update AI chat context for this challenge
+            if (this.aiChat) {
+                this.aiChat.updateChallengeContext();
+            }
             
         } catch (error) {
             console.error('Error loading package challenge:', error);
@@ -548,64 +615,11 @@ class CompanyOnboarding {
         const totalChallenges = this.learningPlan.totalChallenges;
         const completedChallenges = this.progress.completedChallenges || [];
         
-        // Put the challenge pager buttons in the top indicator area
+        // Put the improved challenge navigation in the top indicator area
         const progressIndicator = document.getElementById('progress-indicator');
         if (progressIndicator) {
-            // Generate the same buttons that were in challenge-pager
-            let buttonsHtml = '';
-            for (let i = 0; i < Math.min(totalChallenges, 10); i++) { // Show max 10 buttons
-                // Determine challenge ID for this index
-                let challengeId;
-                if (i < this.learningPlan.basicChallenges.length) {
-                    challengeId = this.learningPlan.basicChallenges[i];
-                } else {
-                    challengeId = `pkg_${i}`;
-                }
-                
-                // Style based on status
-                let buttonClass, buttonContent, buttonTitle;
-                if (completedChallenges.includes(challengeId) || 
-                    (typeof challengeId === 'number' && completedChallenges.includes(challengeId))) {
-                    buttonClass = 'btn btn-success btn-sm me-1';
-                    buttonContent = `<i class="bi bi-check-circle-fill me-1"></i>${i + 1}`;
-                    buttonTitle = 'Challenge completed';
-                } else if (i === this.currentChallengeIndex) {
-                    buttonClass = 'btn btn-primary btn-sm me-1';
-                    buttonContent = i + 1;
-                    buttonTitle = 'Current challenge';
-                } else if (i < this.currentChallengeIndex) {
-                    buttonClass = 'btn btn-outline-success btn-sm me-1';
-                    buttonContent = i + 1;
-                    buttonTitle = 'Available challenge';
-                } else {
-                    buttonClass = 'btn btn-outline-secondary btn-sm me-1';
-                    buttonContent = i + 1;
-                    buttonTitle = 'Locked challenge';
-                }
-                
-                const disabled = i > this.currentChallengeIndex ? 'disabled' : '';
-                // Remove me-1 class to reduce spacing between buttons
-                const cleanButtonClass = buttonClass.replace(' me-1', '');
-                buttonsHtml += `<button type="button" class="${cleanButtonClass}" title="${buttonTitle}" ${disabled} onclick="companyOnboarding.navigateToChallenge(${i})">${buttonContent}</button>`;
-            }
-            
-            // Add previous/next navigation buttons with the challenge pager
-            const prevDisabled = this.currentChallengeIndex === 0 ? 'disabled' : '';
-            const nextDisabled = this.currentChallengeIndex >= totalChallenges - 1 ? 'disabled' : '';
-            
-            // Remove the dark background classes and add light styling
             progressIndicator.className = 'px-3 py-2 rounded border bg-light';
-            progressIndicator.innerHTML = `
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-primary" ${prevDisabled} onclick="companyOnboarding.previousChallenge()" title="Previous Challenge">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    ${buttonsHtml}
-                    <button type="button" class="btn btn-outline-primary" ${nextDisabled} onclick="companyOnboarding.nextChallenge()" title="Next Challenge">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-            `;
+            progressIndicator.innerHTML = this.generateAdvancedNavigation(totalChallenges, completedChallenges);
         }
         
         // Clear both the challenge pager and navigation buttons beside Run Tests since we moved them to top
@@ -618,6 +632,219 @@ class CompanyOnboarding {
         }
         
         this.loadLearningMaterials();
+    }
+
+    generateAdvancedNavigation(totalChallenges, completedChallenges) {
+        const basicCount = this.learningPlan.basicChallenges.length;
+        const packageChallenges = totalChallenges - basicCount;
+        
+        // Previous/Next navigation buttons
+            const prevDisabled = this.currentChallengeIndex === 0 ? 'disabled' : '';
+            const nextDisabled = this.currentChallengeIndex >= totalChallenges - 1 ? 'disabled' : '';
+            
+        let html = `
+            <div class="challenge-navigation">
+                <div class="d-flex align-items-center justify-content-between">
+                    <!-- Navigation Controls -->
+                    <div class="nav-controls">
+                        <button type="button" class="btn btn-outline-primary btn-sm" ${prevDisabled} onclick="companyOnboarding.previousChallenge()" title="Previous Challenge">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                        <span class="mx-2 small text-muted">Challenge ${this.currentChallengeIndex + 1} of ${totalChallenges}</span>
+                        <button type="button" class="btn btn-outline-primary btn-sm" ${nextDisabled} onclick="companyOnboarding.nextChallenge()" title="Next Challenge">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    </div>
+                    
+                    <!-- Quick Jump Dropdown -->
+                    <div class="quick-jump">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-list-ol me-1"></i>Jump to...
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="max-height: 300px; overflow-y: auto;">
+                                ${this.generateBasicChallengesDropdown(basicCount, completedChallenges)}
+                                ${packageChallenges > 0 ? this.generatePackageChallengesDropdown(basicCount, completedChallenges) : ''}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Pills -->
+                <div class="challenge-pills mt-2">
+                    ${this.generateProgressPills(totalChallenges, completedChallenges, basicCount)}
+                </div>
+                </div>
+            `;
+        
+        return html;
+    }
+
+    generateBasicChallengesDropdown(basicCount, completedChallenges) {
+        if (basicCount === 0) return '';
+        
+        let html = `
+            <li><h6 class="dropdown-header">
+                <i class="bi bi-code-square me-1 text-primary"></i>Basic Challenges
+            </h6></li>
+        `;
+        
+        for (let i = 0; i < basicCount; i++) {
+            const challengeId = this.learningPlan.basicChallenges[i];
+            const isCompleted = completedChallenges.includes(challengeId);
+            const isCurrent = i === this.currentChallengeIndex;
+            
+            let icon = '<i class="bi bi-circle me-2"></i>';
+            let className = '';
+            
+            if (isCompleted) {
+                icon = '<i class="bi bi-check-circle-fill me-2 text-success"></i>';
+            } else if (isCurrent) {
+                icon = '<i class="bi bi-play-circle-fill me-2 text-primary"></i>';
+                className = 'active';
+            } else {
+                icon = '<i class="bi bi-circle me-2"></i>';
+                className = '';
+            }
+            
+            html += `
+                <li>
+                    <a class="dropdown-item ${className}" href="#" onclick="companyOnboarding.navigateToChallenge(${i}); return false;">
+                        ${icon}Challenge ${i + 1}
+                        ${isCompleted ? '<span class="badge bg-success ms-auto">✓</span>' : ''}
+                        ${isCurrent ? '<span class="badge bg-primary ms-auto">Current</span>' : ''}
+                    </a>
+                </li>
+            `;
+        }
+        
+        return html;
+    }
+
+    generatePackageChallengesDropdown(basicCount, completedChallenges) {
+        if (!this.selectedPackages || this.selectedPackages.length === 0) return '';
+        
+        let html = `
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">
+                <i class="bi bi-box me-1 text-success"></i>Package Challenges
+            </h6></li>
+        `;
+        
+        let challengeIndex = basicCount;
+        for (const packageName of this.selectedPackages) {
+            const packageInfo = this.packagesInfo[packageName];
+            if (packageInfo && packageInfo.learningPath) {
+                html += `
+                    <li><h6 class="dropdown-header text-muted small ps-3">
+                        📦 ${packageInfo.displayName || packageName}
+                    </h6></li>
+                `;
+                
+                for (let j = 0; j < packageInfo.learningPath.length; j++) {
+                    const isCompleted = false; // TODO: Implement package challenge completion tracking
+                    const isCurrent = challengeIndex === this.currentChallengeIndex;
+                    
+                    let icon = '<i class="bi bi-circle me-2"></i>';
+                    let className = '';
+                    
+                    if (isCompleted) {
+                        icon = '<i class="bi bi-check-circle-fill me-2 text-success"></i>';
+                    } else if (isCurrent) {
+                        icon = '<i class="bi bi-play-circle-fill me-2 text-primary"></i>';
+                        className = 'active';
+                    } else {
+                        icon = '<i class="bi bi-circle me-2"></i>';
+                        className = '';
+                    }
+                    
+                    html += `
+                        <li>
+                            <a class="dropdown-item ${className} ps-4" href="#" onclick="companyOnboarding.navigateToChallenge(${challengeIndex}); return false;">
+                                ${icon}${packageName} ${j + 1}
+                                ${isCompleted ? '<span class="badge bg-success ms-auto">✓</span>' : ''}
+                                ${isCurrent ? '<span class="badge bg-primary ms-auto">Current</span>' : ''}
+                            </a>
+                        </li>
+                    `;
+                    challengeIndex++;
+                }
+            }
+        }
+        
+        return html;
+    }
+
+    generateProgressPills(totalChallenges, completedChallenges, basicCount) {
+        const maxVisiblePills = 15; // Show up to 15 pills directly
+        let html = '';
+        
+        if (totalChallenges <= maxVisiblePills) {
+            // Show all challenges as pills
+            for (let i = 0; i < totalChallenges; i++) {
+                html += this.generatePill(i, completedChallenges, basicCount);
+            }
+        } else {
+            // Show current challenge area with context
+            const start = Math.max(0, this.currentChallengeIndex - 7);
+            const end = Math.min(totalChallenges, start + 15);
+            
+            if (start > 0) {
+                html += '<span class="text-muted me-2">...</span>';
+            }
+            
+            for (let i = start; i < end; i++) {
+                html += this.generatePill(i, completedChallenges, basicCount);
+            }
+            
+            if (end < totalChallenges) {
+                html += '<span class="text-muted ms-2">...</span>';
+            }
+        }
+        
+        return html;
+    }
+
+    generatePill(index, completedChallenges, basicCount) {
+        const isBasic = index < basicCount;
+        const challengeId = isBasic ? this.learningPlan.basicChallenges[index] : `pkg_${index}`;
+        const isCompleted = completedChallenges.includes(challengeId);
+        const isCurrent = index === this.currentChallengeIndex;
+        
+        let className = 'challenge-pill ';
+        let content = index + 1;
+        let title = '';
+        
+        if (isCompleted) {
+            className += 'completed';
+            content = '<i class="bi bi-check"></i>';
+            title = 'Completed';
+        } else if (isCurrent) {
+            className += 'current';
+            title = 'Current challenge';
+        } else {
+            className += 'available';
+            title = 'Available';
+        }
+        
+        // Add type indicator
+        if (isBasic) {
+            className += ' basic-challenge';
+            title += ' (Basic Challenge)';
+        } else {
+            className += ' package-challenge';
+            title += ' (Package Challenge)';
+        }
+        
+        
+        return `
+            <button type="button" 
+                    class="${className}" 
+                    title="${title}" 
+                    onclick="companyOnboarding.navigateToChallenge(${index})">
+                ${content}
+            </button>
+        `;
     }
 
     clearBottomNavigation() {
@@ -1044,8 +1271,14 @@ class CompanyOnboarding {
     }
 
     updateChallengePager() {
-        // This function is now integrated into the main progress indicator update
-        // The pager buttons and navigation are now shown in the top area, not beside Run Tests
+        // Update the advanced navigation when challenge pager needs refresh
+        if (this.learningPlan && this.learningPlan.totalChallenges) {
+            const progressIndicator = document.getElementById('progress-indicator');
+            if (progressIndicator) {
+                const completedChallenges = this.progress.completedChallenges || [];
+                progressIndicator.innerHTML = this.generateAdvancedNavigation(this.learningPlan.totalChallenges, completedChallenges);
+            }
+        }
         this.clearBottomNavigation();
     }
 
@@ -1340,7 +1573,17 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
         if (!this.selectedBasicChallenges || !this.selectedPackages) {
             return 1; // Fallback
         }
-        return this.selectedBasicChallenges.length + (this.selectedPackages.length * 2);
+        
+        // Calculate total package challenges dynamically
+        let totalPackageChallenges = 0;
+        this.selectedPackages.forEach(packageName => {
+            const packageInfo = this.packagesInfo[packageName];
+            if (packageInfo && packageInfo.learningPath) {
+                totalPackageChallenges += packageInfo.learningPath.length;
+            }
+        });
+        
+        return this.selectedBasicChallenges.length + totalPackageChallenges;
     }
 
     showAILoading(message) {
@@ -1900,7 +2143,16 @@ This is a practical ${this.currentChallenge.packageName} framework implementatio
     updateSessionMeta() {
         const meta = document.getElementById('session-meta');
         if (meta) {
-            meta.textContent = `${this.selectedBasicChallenges.length} basic challenges + ${this.selectedPackages.length} packages`;
+            // Calculate total package challenges dynamically
+            let totalPackageChallenges = 0;
+            this.selectedPackages.forEach(packageName => {
+                const packageInfo = this.packagesInfo[packageName];
+                if (packageInfo && packageInfo.learningPath) {
+                    totalPackageChallenges += packageInfo.learningPath.length;
+                }
+            });
+            
+            meta.textContent = `${this.selectedBasicChallenges.length} basic challenges + ${this.selectedPackages.length} packages (${totalPackageChallenges} challenges)`;
         }
     }
 
@@ -2573,9 +2825,56 @@ class AIMentorChat {
         this.onboarding = onboarding;
         this.conversationHistory = [];
         this.isTyping = false;
-        this.storageKey = 'ai-mentor-chat-history';
+        this.currentChallengeId = null;
+        this.storageKey = this.generateStorageKey();
         this.setupEventListeners();
         this.loadChatHistory();
+    }
+
+    generateStorageKey() {
+        // Generate storage key based on current challenge
+        if (this.onboarding && this.onboarding.currentChallenge) {
+            const challenge = this.onboarding.currentChallenge;
+            if (challenge.isPackageChallenge) {
+                return `ai-mentor-chat-${challenge.packageName}-${challenge.challengeNumber}`;
+            } else {
+                return `ai-mentor-chat-challenge-${challenge.id}`;
+            }
+        }
+        // Fallback for when no challenge is loaded yet
+        return 'ai-mentor-chat-default';
+    }
+
+    updateChallengeContext() {
+        // Called when challenge changes to update storage context
+        const newStorageKey = this.generateStorageKey();
+        
+        if (newStorageKey !== this.storageKey) {
+            // Save current conversation before switching
+            this.saveChatHistory();
+            
+            // Switch to new challenge context
+            this.storageKey = newStorageKey;
+            
+            // Clear current conversation and load new one
+            this.conversationHistory = [];
+            this.clearChatUI();
+            this.loadChatHistory();
+            
+            console.log('Switched chat context to:', this.storageKey);
+        }
+    }
+
+    clearChatUI() {
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            // Keep only the welcome message
+            const welcomeMessage = chatMessages.querySelector('.chat-message.ai');
+            chatMessages.innerHTML = '';
+            if (welcomeMessage) {
+                chatMessages.appendChild(welcomeMessage);
+            }
+        }
     }
 
     setupEventListeners() {
@@ -2957,15 +3256,26 @@ class AIMentorChat {
     clearChatHistoryWithConfirmation() {
         const messageCount = this.conversationHistory.length;
         if (messageCount === 0) {
-            this.showTemporaryMessage('Chat is already empty', 'info');
+            this.showTemporaryMessage('Chat is already empty for this challenge', 'info');
             return;
         }
         
-        const confirmMessage = `Are you sure you want to clear your chat history? This will delete ${Math.floor(messageCount/2)} conversation turns and cannot be undone.`;
+        // Get current challenge info for the confirmation message
+        let challengeInfo = 'this challenge';
+        if (this.onboarding && this.onboarding.currentChallenge) {
+            const challenge = this.onboarding.currentChallenge;
+            if (challenge.isPackageChallenge) {
+                challengeInfo = `${challenge.packageName} challenge ${challenge.challengeNumber}`;
+            } else {
+                challengeInfo = `challenge ${challenge.id}`;
+            }
+        }
+        
+        const confirmMessage = `Are you sure you want to clear your chat history for ${challengeInfo}? This will delete ${Math.floor(messageCount/2)} conversation turns and cannot be undone.`;
             
         if (confirm(confirmMessage)) {
             this.clearChatHistory();
-            this.showTemporaryMessage('Chat history cleared', 'success');
+            this.showTemporaryMessage(`Chat history cleared for ${challengeInfo}`, 'success');
         }
     }
 
@@ -3056,8 +3366,16 @@ function clearChatHistory() {
 
 // Debug function to clear corrupted localStorage data
 function debugClearChatStorage() {
-    localStorage.removeItem('ai-mentor-chat-history');
-    console.log('Chat storage cleared. Please refresh the page.');
+    // Clear all AI chat storage keys
+    const keys = Object.keys(localStorage);
+    let clearedCount = 0;
+    keys.forEach(key => {
+        if (key.startsWith('ai-mentor-chat-')) {
+            localStorage.removeItem(key);
+            clearedCount++;
+        }
+    });
+    console.log(`Chat storage cleared: ${clearedCount} conversation histories removed. Please refresh the page.`);
 }
 
 // Test function for code formatting (can be removed in production)

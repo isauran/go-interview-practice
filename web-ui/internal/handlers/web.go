@@ -767,12 +767,36 @@ func (h *WebHandler) CompanyOnboardingPage(w http.ResponseWriter, r *http.Reques
 		userAttempt = h.userService.GetUserAttempts(username, h.challengeService.GetChallenges())
 	}
 
+	// Get packages for setup modal (same as home page)
+	packages := h.packageService.GetPackages()
+
+	// Convert packages map to sorted slice by stars (descending)
+	type PackageWithName struct {
+		Name string
+		*models.Package
+	}
+
+	var packagesList []*PackageWithName
+	for name, pkg := range packages {
+		packagesList = append(packagesList, &PackageWithName{
+			Name:    name,
+			Package: pkg,
+		})
+	}
+
+	// Sort by stars descending (highest first)
+	sort.Slice(packagesList, func(i, j int) bool {
+		return packagesList[i].Stars > packagesList[j].Stars
+	})
+
 	data := struct {
 		Username     string
 		UserAttempts *models.UserAttemptedChallenges
+		PackagesList []*PackageWithName
 	}{
 		Username:     username,
 		UserAttempts: userAttempt,
+		PackagesList: packagesList,
 	}
 
 	err = tmpl.ExecuteTemplate(w, "base", data)

@@ -1368,3 +1368,34 @@ func (h *APIHandler) AIMentorChat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(chatResponse)
 }
+
+// GetPackagesInfo returns information about all available packages
+func (h *APIHandler) GetPackagesInfo(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	packages := h.packageService.GetPackages()
+
+	// Convert to a format suitable for JSON response
+	packageInfo := make(map[string]interface{})
+	for name, pkg := range packages {
+		packageInfo[name] = map[string]interface{}{
+			"name":           pkg.Name,
+			"displayName":    pkg.DisplayName,
+			"description":    pkg.Description,
+			"category":       pkg.Category,
+			"difficulty":     pkg.Difficulty,
+			"stars":          pkg.Stars,
+			"learningPath":   pkg.LearningPath,
+			"challengeCount": len(pkg.LearningPath),
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success":  true,
+		"packages": packageInfo,
+	})
+}
