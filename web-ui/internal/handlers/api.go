@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -1328,12 +1329,22 @@ func (h *APIHandler) AIMentorChat(w http.ResponseWriter, r *http.Request) {
 
 	var request struct {
 		Message             string                 `json:"message"`
-		ChallengeID         int                    `json:"challengeId"`
+		ChallengeID         interface{}            `json:"challengeId"` // Can be int or string
 		ConversationHistory []services.ChatMessage `json:"conversationHistory"`
 		CodeContext         string                 `json:"codeContext"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&request)
+	// Read the request body
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	// Create a new reader from the bytes since we consumed the body
+	bodyReader := bytes.NewReader(bodyBytes)
+
+	err = json.NewDecoder(bodyReader).Decode(&request)
 	if err != nil {
 		http.Error(w, "Invalid request data", http.StatusBadRequest)
 		return
@@ -1347,9 +1358,24 @@ func (h *APIHandler) AIMentorChat(w http.ResponseWriter, r *http.Request) {
 
 	// Get challenge if provided
 	var challenge *models.Challenge
-	if request.ChallengeID > 0 {
-		if c, exists := h.challengeService.GetChallenge(request.ChallengeID); exists {
-			challenge = c
+	if request.ChallengeID != nil {
+		// Handle both string and integer challenge IDs
+		switch challengeID := request.ChallengeID.(type) {
+		case float64: // JSON numbers are decoded as float64
+			if challengeID > 0 {
+				if c, exists := h.challengeService.GetChallenge(int(challengeID)); exists {
+					challenge = c
+				}
+			}
+		case string:
+			// For package challenges, we might have string IDs like "challenge-1-basic-routing"
+			// For now, we'll just continue without a specific challenge
+		case int:
+			if challengeID > 0 {
+				if c, exists := h.challengeService.GetChallenge(challengeID); exists {
+					challenge = c
+				}
+			}
 		}
 	}
 
